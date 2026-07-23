@@ -84,20 +84,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const hasVideoFeature = Boolean(openVideoButtons.length && videoModal && memoryVideo && videoStatus && videoCloseButton && videoBackdrop);
   const hasCountdownFeature = Boolean(countdownSection && countdownDays && countdownHours && countdownMinutes && countdownSeconds && countdownNote);
   const hasFinaleFeature = Boolean(launchFinaleButton && surpriseSection && fireworksLayer && confettiLayer);
-  const passcodeSessionKey = "roshaniBirthdayUnlocked";
-  const navigationType = window.performance?.getEntriesByType?.("navigation")?.[0]?.type;
-
-  if (navigationType === "reload") {
-    try {
-      window.sessionStorage.removeItem(passcodeSessionKey);
-    } catch (error) {
-      // If storage is unavailable, the gate can still fall back to prompting.
-    }
-  }
+  const passcodeWindowName = "roshaniBirthdayUnlocked";
 
   function hasStoredPasscodeUnlock() {
     try {
-      return window.sessionStorage.getItem(passcodeSessionKey) === "true";
+      return window.name === passcodeWindowName;
     } catch (error) {
       return false;
     }
@@ -105,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function storePasscodeUnlock() {
     try {
-      window.sessionStorage.setItem(passcodeSessionKey, "true");
+      window.name = passcodeWindowName;
     } catch (error) {
       // If storage is unavailable, the gate can still fall back to prompting.
     }
