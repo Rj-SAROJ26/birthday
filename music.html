@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music | Birthday Surprise for Roshani</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="ambient ambient-left" aria-hidden="true"></div>
+  <div class="ambient ambient-right" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <strong>Roshani</strong>
+      <span>Teddy birthday journey</span>
+    </a>
+
+    <nav class="site-nav" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="letter.html">Letter</a>
+      <a href="music.html" aria-current="page">Music</a>
+      <a href="video.html">Video</a>
+      <a href="cake.html">Cake</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="page-hero" data-reveal="fade">
+      <p class="section-kicker">Music player</p>
+      <h1>A song that belongs to us</h1>
+      <p>
+        Press play, pause, and adjust the volume while Roshani's little teddy surprise plays softly.
+      </p>
+      <div class="page-actions">
+        <a class="page-action" href="letter.html">Back: Letter</a>
+        <a class="page-action" href="video.html">Next: Video</a>
+      </div>
+    </section>
+
+    <section class="music-section" id="music">
+      <div class="section-heading" data-reveal="fade">
+        <p class="section-kicker">Music player</p>
+        <h2>Play the song saved for this moment</h2>
+        <p class="section-description">
+          The song is loaded from the project music folder so it stays with the birthday surprise.
+        </p>
+      </div>
+
+      <div class="music-player" data-reveal="zoom">
+        <div class="music-art" aria-hidden="true">
+          <div class="music-disc"></div>
+        </div>
+
+        <div class="music-player-body">
+          <p class="music-tag">Now playing</p>
+          <h3>Baby, Now That I Found You</h3>
+          <p class="music-copy">
+            A soft little song for Sona, tucked inside the teddy birthday journey.
+          </p>
+
+          <div class="music-controls">
+            <button class="music-toggle" id="musicToggle" type="button">Play</button>
+            <label class="volume-control">
+              <span>Volume</span>
+              <input id="musicVolume" type="range" min="0" max="1" step="0.01" value="0.54">
+            </label>
+          </div>
+
+          <p class="music-status" id="musicStatus">Press play when you want the song to begin.</p>
+          <audio id="loveSong" preload="metadata" src="assets/music/Baby_Now_That_I_Found_You.mp3"></audio>
+        </div>
+      </div>
+    </section>
+
+    <div class="page-actions">
+      <a class="page-action" href="letter.html">Back</a>
+      <a class="page-action" href="video.html">Continue</a>
+    </div>
+  </main>
+
+  <div class="custom-cursor" id="customCursor" aria-hidden="true"></div>
+  <div class="sparkle-layer" id="sparkleLayer" aria-hidden="true"></div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

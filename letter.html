@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Love Letter | Birthday Surprise for Roshani</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="ambient ambient-left" aria-hidden="true"></div>
+  <div class="ambient ambient-right" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <strong>Roshani</strong>
+      <span>Teddy birthday journey</span>
+    </a>
+
+    <nav class="site-nav" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="reasons.html">Reasons</a>
+      <a href="letter.html" aria-current="page">Letter</a>
+      <a href="music.html">Music</a>
+      <a href="video.html">Video</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="page-hero" data-reveal="fade">
+      <p class="section-kicker">Love letter</p>
+      <h1>A letter written just for you</h1>
+      <p>
+        Open the envelope when you are ready and let the words unfold at a gentle, handwritten pace.
+      </p>
+      <div class="page-actions">
+        <a class="page-action" href="reasons.html">Back: Reasons</a>
+        <a class="page-action" href="music.html">Next: Music</a>
+      </div>
+    </section>
+
+    <section class="letter-section" id="letter">
+      <div class="section-heading" data-reveal="fade">
+        <p class="section-kicker">Love letter</p>
+        <h2>Open the envelope when you are ready</h2>
+        <p class="section-description">
+          The note opens with a soft animation and the words appear slowly, like a little birthday keepsake.
+        </p>
+      </div>
+
+      <div class="letter-stage">
+        <button class="envelope-button" id="openLetter" type="button" aria-expanded="false" aria-controls="letterPaper">
+          <span class="envelope-shadow"></span>
+          <span class="envelope-base"></span>
+          <span class="envelope-flap"></span>
+          <span class="envelope-heart" aria-hidden="true">&hearts;</span>
+          <span class="envelope-label">Open Letter</span>
+        </button>
+
+        <article class="letter-paper" id="letterPaper">
+          <h3 class="letter-greeting">Dear Roshani,</h3>
+          <p class="letter-body typed-letter" id="typedLetter"></p>
+          <p class="letter-signature">Forever yours</p>
+        </article>
+      </div>
+    </section>
+
+    <div class="page-actions">
+      <a class="page-action" href="reasons.html">Back</a>
+      <a class="page-action" href="music.html">Continue</a>
+    </div>
+  </main>
+
+  <div class="custom-cursor" id="customCursor" aria-hidden="true"></div>
+  <div class="sparkle-layer" id="sparkleLayer" aria-hidden="true"></div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown | Birthday Surprise for Roshani</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="ambient ambient-left" aria-hidden="true"></div>
+  <div class="ambient ambient-right" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <strong>Roshani</strong>
+      <span>Teddy birthday journey</span>
+    </a>
+
+    <nav class="site-nav" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="countdown.html" aria-current="page">Countdown</a>
+      <a href="story.html">Story</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="surprise.html">Finale</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="page-hero" data-reveal="fade">
+      <p class="section-kicker">Countdown timer</p>
+      <h1>Counting the seconds until your day arrives</h1>
+      <p>
+        The timer keeps the excitement alive while we wait for 26 July 2026, Roshani's 20th birthday.
+      </p>
+      <div class="page-actions">
+        <a class="page-action" href="index.html">Back Home</a>
+        <a class="page-action" href="story.html">Next: Story</a>
+      </div>
+    </section>
+
+    <section class="countdown-section" id="countdown" data-birthday="2006-07-26">
+      <div class="section-heading" data-reveal="fade">
+        <p class="section-kicker">Countdown timer</p>
+        <h2>Counting every second until 26 July 2026</h2>
+        <p class="section-description">
+          This timer keeps the excitement alive while we wait for 26 July 2026, Roshani's 20th birthday.
+        </p>
+      </div>
+
+      <div class="countdown-card" data-reveal="zoom">
+        <div class="countdown-grid" aria-label="Countdown timer">
+          <div class="countdown-unit">
+            <span id="countdownDays">00</span>
+            <small>Days</small>
+          </div>
+          <div class="countdown-unit">
+            <span id="countdownHours">00</span>
+            <small>Hours</small>
+          </div>
+          <div class="countdown-unit">
+            <span id="countdownMinutes">00</span>
+            <small>Minutes</small>
+          </div>
+          <div class="countdown-unit">
+            <span id="countdownSeconds">00</span>
+            <small>Seconds</small>
+          </div>
+        </div>
+        <p class="countdown-note" id="countdownNote">Until Roshani's 20th birthday on 26 July 2026.</p>
+      </div>
+    </section>
+
+    <div class="page-actions">
+      <a class="page-action" href="index.html">Home</a>
+      <a class="page-action" href="story.html">Continue</a>
+    </div>
+  </main>
+
+  <div class="custom-cursor" id="customCursor" aria-hidden="true"></div>
+  <div class="sparkle-layer" id="sparkleLayer" aria-hidden="true"></div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
