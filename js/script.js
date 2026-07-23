@@ -84,8 +84,39 @@ document.addEventListener("DOMContentLoaded", () => {
   const hasVideoFeature = Boolean(openVideoButtons.length && videoModal && memoryVideo && videoStatus && videoCloseButton && videoBackdrop);
   const hasCountdownFeature = Boolean(countdownSection && countdownDays && countdownHours && countdownMinutes && countdownSeconds && countdownNote);
   const hasFinaleFeature = Boolean(launchFinaleButton && surpriseSection && fireworksLayer && confettiLayer);
+  const passcodeSessionKey = "roshaniBirthdayUnlocked";
+  const navigationType = window.performance?.getEntriesByType?.("navigation")?.[0]?.type;
+
+  if (navigationType === "reload") {
+    try {
+      window.sessionStorage.removeItem(passcodeSessionKey);
+    } catch (error) {
+      // If storage is unavailable, the gate can still fall back to prompting.
+    }
+  }
+
+  function hasStoredPasscodeUnlock() {
+    try {
+      return window.sessionStorage.getItem(passcodeSessionKey) === "true";
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function storePasscodeUnlock() {
+    try {
+      window.sessionStorage.setItem(passcodeSessionKey, "true");
+    } catch (error) {
+      // If storage is unavailable, the gate can still fall back to prompting.
+    }
+  }
 
   function createPasscodeGate() {
+    if (hasStoredPasscodeUnlock()) {
+      document.body.classList.add("is-unlocked");
+      return;
+    }
+
     document.body.classList.add("is-gated");
 
     const gate = document.createElement("section");
@@ -158,6 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
         gate.classList.remove("is-wrong");
         gate.classList.add("is-unlocking");
         document.body.classList.add("is-unlocked");
+        storePasscodeUnlock();
 
         window.setTimeout(() => {
           releaseGatedElements();
