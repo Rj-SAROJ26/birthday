@@ -3,7 +3,7 @@ window.BirthdayWishConfig = window.BirthdayWishConfig || {
     publicKey: "",
     serviceId: "",
     templateId: "",
-    recipientEmail: "rajsagarsaroj17@gmail.com",
+    recipientEmail: "",
   },
   firebase: {
     apiKey: "",

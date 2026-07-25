@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cakeMessage = document.getElementById("cakeMessage");
   const wishPopup = document.getElementById("wishPopup");
   const wishPopupDialog = document.querySelector(".wish-popup-dialog");
+  const wishForm = document.getElementById("wishForm");
   const wishTextarea = document.getElementById("birthdayWish");
   const wishSendButton = document.getElementById("sendWish");
   const wishSkipButton = document.getElementById("skipWish");
@@ -92,10 +93,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const hasVideoFeature = Boolean(openVideoButtons.length && videoModal && memoryVideo && videoStatus && videoCloseButton && videoBackdrop);
   const hasCountdownFeature = Boolean(countdownSection && countdownDays && countdownHours && countdownMinutes && countdownSeconds && countdownNote);
   const hasFinaleFeature = Boolean(launchFinaleButton && surpriseSection && fireworksLayer && confettiLayer);
-  const hasWishFeature = Boolean(wishPopup && wishPopupDialog && wishTextarea && wishSendButton && wishSkipButton && wishFeedback && wishCelebration && cakeStage && cakeMessage && blowCandlesButton);
+  const hasWishFeature = Boolean(wishPopup && wishPopupDialog && wishForm && wishTextarea && wishSendButton && wishSkipButton && wishFeedback && wishCelebration && cakeStage && cakeMessage && blowCandlesButton);
   const wishConfig = window.BirthdayWishConfig || {};
   const passcodeWindowName = "roshaniBirthdayUnlocked";
   const wishSessionKey = "roshaniBirthdayWishSession";
+  const wishInboxKey = "roshaniBirthdayWishInbox";
+  const wishSkipUnlockThreshold = 50;
   const wishStorageState = (() => {
     try {
       return JSON.parse(sessionStorage.getItem(wishSessionKey) || "null") || {};
@@ -142,6 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let wishRecordId = wishStorageState.recordId || null;
   let wishPopupOpen = false;
   let wishCelebrationTimerId = null;
+  let emailJsInitialized = false;
 
   function saveMusicState(nextState = {}) {
     const currentState = {
@@ -635,6 +639,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function saveWishLocally(wishRecord, deliveryMode = "local") {
+    try {
+      const storedWishes = JSON.parse(localStorage.getItem(wishInboxKey) || "[]");
+      const wishList = Array.isArray(storedWishes) ? storedWishes : [];
+
+      wishList.unshift({
+        ...wishRecord,
+        deliveryMode,
+        savedLocallyAtIso: new Date().toISOString(),
+      });
+
+      localStorage.setItem(wishInboxKey, JSON.stringify(wishList.slice(0, 12)));
+    } catch (error) {
+      // Local storage is optional. The wish flow still works without it.
+    }
+  }
+
   function syncWishSendButtonState() {
     if (!hasWishFeature) {
       return;
@@ -643,6 +664,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const hasText = wishTextarea.value.trim().length > 0;
     wishSendButton.disabled = !hasText || wishSubmitting || wishAlreadySent;
     wishSendButton.setAttribute("aria-busy", String(wishSubmitting));
+    wishSendButton.classList.toggle("is-loading", wishSubmitting);
   }
 
   function generateWishRecordId() {
@@ -723,14 +745,30 @@ document.addEventListener("DOMContentLoaded", () => {
     return new Date().toLocaleString();
   }
 
+  function getWishFormValues() {
+    // Keep the current UI untouched, but still gather a normalized payload for EmailJS.
+    const nameField = document.querySelector("#wishName, [name='name'], [data-wish-name]");
+    const emailField = document.querySelector("#wishEmail, [name='email'], [data-wish-email]");
+    const message = wishTextarea.value.trim();
+    const name = nameField?.value?.trim() || wishConfig.emailjs?.senderName || "Birthday Guest";
+    const email = emailField?.value?.trim() || wishConfig.emailjs?.senderEmail || "anonymous@birthday.wish";
+
+    return { name, email, message };
+  }
+
   function buildWishRecord(wishText) {
     if (!wishRecordId) {
       wishRecordId = generateWishRecordId();
     }
 
+    const wishFields = getWishFormValues();
+
     return {
       wishId: wishRecordId,
       birthdayWish: wishText,
+      name: wishFields.name,
+      email: wishFields.email,
+      message: wishFields.message,
       dateTime: getWishDateTime(),
       browserName: getBrowserName(),
       deviceType: getDeviceType(),
@@ -746,7 +784,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getWishServiceMessage() {
-    return "EmailJS and Firebase still need values in `js/birthday-wish.config.js`.";
+    return "EmailJS still needs valid credentials in `js/birthday-wish.config.js`.";
+  }
+
+  function ensureEmailJS() {
+    const emailjsConfig = wishConfig.emailjs || {};
+
+    if (!emailjsConfig.publicKey || !emailjsConfig.serviceId || !emailjsConfig.templateId) {
+      throw new Error("EmailJS configuration is missing.");
+    }
+
+    if (!window.emailjs?.send || !window.emailjs?.init) {
+      throw new Error("EmailJS could not load on this page.");
+    }
+
+    if (!emailJsInitialized) {
+      // Initialize the SDK once so every wish uses the same verified public key.
+      window.emailjs.init({ publicKey: emailjsConfig.publicKey });
+      emailJsInitialized = true;
+    }
   }
 
   function loadScriptOnce(source, readyCheck) {
@@ -794,42 +850,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function sendWishEmail(wishRecord) {
     const emailjsConfig = wishConfig.emailjs || {};
+    ensureEmailJS();
 
-    if (!emailjsConfig.publicKey || !emailjsConfig.serviceId || !emailjsConfig.templateId) {
-      throw new Error("EmailJS configuration is missing.");
-    }
-
-    const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    // Send the wish through the EmailJS browser SDK so the email reaches the configured Gmail inbox.
+    return window.emailjs.send(
+      emailjsConfig.serviceId,
+      emailjsConfig.templateId,
+      {
+        name: wishRecord.name,
+        from_name: wishRecord.name,
+        email: wishRecord.email,
+        from_email: wishRecord.email,
+        message: wishRecord.message,
+        to_email: emailjsConfig.recipientEmail || "rajsagarsaroj17@gmail.com",
+        reply_to: wishRecord.email,
+        subject: wishRecord.emailSubject,
+        date_time: wishRecord.dateTime,
+        browser_name: wishRecord.browserName,
+        device_type: wishRecord.deviceType,
+        operating_system: wishRecord.operatingSystem,
+        screen_resolution: wishRecord.screenResolution,
+        current_page_url: wishRecord.currentPageUrl,
+        wish_id: wishRecord.wishId,
       },
-      body: JSON.stringify({
-        service_id: emailjsConfig.serviceId,
-        template_id: emailjsConfig.templateId,
-        user_id: emailjsConfig.publicKey,
-        template_params: {
-          to_email: emailjsConfig.recipientEmail || "rajsagarsaroj17@gmail.com",
-          subject: wishRecord.emailSubject,
-          birthday_wish: wishRecord.birthdayWish,
-          date_time: wishRecord.dateTime,
-          browser_name: wishRecord.browserName,
-          device_type: wishRecord.deviceType,
-          operating_system: wishRecord.operatingSystem,
-          screen_resolution: wishRecord.screenResolution,
-          current_page_url: wishRecord.currentPageUrl,
-          wish_id: wishRecord.wishId,
-        },
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || "EmailJS rejected the wish.");
-    }
+      {
+        publicKey: emailjsConfig.publicKey,
+      },
+    );
   }
 
   function clearWishCelebration() {
+
     if (!wishCelebration) {
       return;
     }
@@ -852,6 +903,10 @@ document.addEventListener("DOMContentLoaded", () => {
     clearWishCelebration();
     wishCelebration.textContent = "✨ Your wish has been safely sent to the universe... and secretly to someone who loves you. ❤️";
     wishCelebration.classList.add("is-visible");
+    const celebrationMessage = typeof arguments[0] === "string" && arguments[0].trim().length > 0
+      ? arguments[0]
+      : "✨ Your wish has been safely sent to the universe... and secretly to someone who loves you. ❤️";
+    wishCelebration.textContent = celebrationMessage;
     wishCelebration.setAttribute("aria-hidden", "false");
 
     createConfettiBurst(96);
@@ -862,6 +917,39 @@ document.addEventListener("DOMContentLoaded", () => {
     wishCelebrationTimerId = window.setTimeout(() => {
       clearWishCelebration();
     }, 3600);
+  }
+
+  function showWishStatusPopup(message, tone = "success") {
+    if (!hasWishFeature) {
+      return;
+    }
+
+    clearWishCelebration();
+
+    // Reuse the existing celebration layer so we keep the current visual language intact.
+    const card = document.createElement("p");
+    card.textContent = message;
+
+    if (tone === "error") {
+      card.style.background = "linear-gradient(145deg, rgba(255, 124, 147, 0.34), rgba(122, 42, 74, 0.36))";
+      card.style.border = "1px solid rgba(255, 220, 228, 0.45)";
+      card.style.boxShadow = "0 26px 72px rgba(70, 15, 34, 0.42)";
+    }
+
+    wishCelebration.appendChild(card);
+    wishCelebration.classList.add("is-visible");
+    wishCelebration.setAttribute("aria-hidden", "false");
+
+    if (tone === "success") {
+      createConfettiBurst(96);
+      createSparkBurst(window.innerWidth / 2, window.innerHeight / 2, 30, "wish-spark");
+      createSparkBurst(window.innerWidth * 0.42, window.innerHeight * 0.4, 18, "wish-spark");
+      createSparkBurst(window.innerWidth * 0.58, window.innerHeight * 0.44, 18, "wish-spark");
+    }
+
+    wishCelebrationTimerId = window.setTimeout(() => {
+      clearWishCelebration();
+    }, tone === "error" ? 2600 : 3600);
   }
 
   function setWishPopupPosition(left, top) {
@@ -909,7 +997,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ));
     }
 
-    for (let attempt = 0; attempt < 40; attempt += 1) {
+    for (let attempt = 0; attempt < 80; attempt += 1) {
       const left = paddingLeft + Math.random() * Math.max(1, maxLeft - paddingLeft);
       const top = paddingTop + Math.random() * Math.max(1, maxTop - paddingTop);
       const candidate = {
@@ -928,22 +1016,35 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    const fallbackPositions = [
-      { left: paddingLeft, top: paddingTop },
-      { left: Math.max(paddingLeft, maxLeft - 6), top: paddingTop },
-      { left: paddingLeft, top: Math.max(paddingTop, maxTop - 6) },
-      { left: Math.max(paddingLeft, maxLeft - 6), top: Math.max(paddingTop, maxTop - 6) },
-    ];
+    const fallbackPositions = [];
+    const fractions = [0, 0.25, 0.5, 0.75, 1];
 
-    return fallbackPositions.find((position) => {
+    fractions.forEach((xFraction) => {
+      fractions.forEach((yFraction) => {
+        fallbackPositions.push({
+          left: paddingLeft + (maxLeft - paddingLeft) * xFraction,
+          top: paddingTop + (maxTop - paddingTop) * yFraction,
+        });
+      });
+    });
+
+    const startIndex = Math.floor(Math.random() * fallbackPositions.length);
+
+    for (let offset = 0; offset < fallbackPositions.length; offset += 1) {
+      const position = fallbackPositions[(startIndex + offset) % fallbackPositions.length];
       const candidate = {
         left: position.left,
         top: position.top,
         right: position.left + buttonWidth,
         bottom: position.top + buttonHeight,
       };
-      return !overlaps(candidate);
-    }) || fallbackPositions[0];
+
+      if (!overlaps(candidate)) {
+        return position;
+      }
+    }
+
+    return fallbackPositions[0];
   }
 
   function moveWishSkipButton(countAttempt = true) {
@@ -958,11 +1059,11 @@ document.addEventListener("DOMContentLoaded", () => {
       wishSkipAttempts += 1;
     }
 
-    if (wishSkipAttempts >= 5 && wishSkipAttempts < 10) {
+    if (wishSkipAttempts >= 10 && wishSkipAttempts < 25) {
       setWishFeedback("🥺 Aww... Don't skip! Just write one little wish for me. ❤️");
     }
 
-    if (wishSkipAttempts >= 10) {
+    if (wishSkipAttempts >= wishSkipUnlockThreshold) {
       wishSkipUnlocked = true;
       wishSkipButton.classList.add("is-relaxed");
       setWishFeedback("You can skip now if you really want to.");
@@ -1023,32 +1124,33 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const wishText = wishTextarea.value.trim();
+    const wishFields = getWishFormValues();
 
-    if (!wishText) {
-      setWishFeedback("Please write at least one character before sending.", "error");
+    if (!wishFields.name || !wishFields.email || !wishFields.message) {
+      setWishFeedback("Please fill in name, email, and message before sending.", "error");
       wishTextarea.focus();
       return;
     }
 
-    const wishRecord = buildWishRecord(wishText);
+    const wishRecord = buildWishRecord(wishFields.message);
     wishRecordId = wishRecord.wishId;
     wishSubmitting = true;
     setWishFeedback("Sending your wish with love...");
     syncWishSendButtonState();
 
     try {
-      await Promise.all([
-        sendWishEmail(wishRecord),
-        saveWishToFirestore(wishRecord),
-      ]);
-
+      await sendWishEmail(wishRecord);
       wishAlreadySent = true;
       saveWishSession({ sent: true, recordId: wishRecordId });
       closeWishPopup(true);
-      showWishCelebration();
+      showWishStatusPopup("? Your wish was delivered successfully to your Gmail inbox. ??", "success");
     } catch (error) {
-      setWishFeedback(`Sorry, the wish couldn't be sent right now. ${error?.message?.includes("configuration") ? getWishServiceMessage() : "Please try again in a moment."}`, "error");
+      const errorMessage = error?.message?.includes("configuration")
+        ? getWishServiceMessage()
+        : "Please check your EmailJS setup and try again.";
+
+      setWishFeedback(`Sorry, the wish couldn't be sent right now. ${errorMessage}`, "error");
+      showWishStatusPopup("Sorry, the wish could not be sent right now. Please try again.", "error");
     } finally {
       wishSubmitting = false;
       syncWishSendButtonState();
@@ -1680,7 +1782,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    wishSendButton.addEventListener("click", () => {
+    wishForm.addEventListener("submit", (event) => {
+      event.preventDefault();
       submitWish();
     });
 

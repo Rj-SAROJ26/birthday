@@ -79,49 +79,6 @@
     </div>
   </main>
 
-  <div class="wish-popup" id="wishPopup" aria-hidden="true">
-    <div class="wish-popup-backdrop" aria-hidden="true"></div>
-    <section
-      class="wish-popup-dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="wishTitle"
-      aria-describedby="wishSubtitle"
-    >
-      <div class="wish-popup-copy">
-        <p class="wish-popup-kicker">Birthday wish</p>
-        <h2 id="wishTitle">✨ Make Your Birthday Wish ✨</h2>
-        <p id="wishSubtitle" class="wish-popup-subtitle">
-          Close your eyes, make a wish from your heart, and write it below. ❤️
-        </p>
-      </div>
-
-      <label class="sr-only" for="birthdayWish">Your birthday wish</label>
-      <textarea
-        id="birthdayWish"
-        class="wish-popup-textarea"
-        rows="5"
-        maxlength="1000"
-        placeholder="Write your birthday wish here..."
-      ></textarea>
-
-      <p class="wish-popup-feedback" id="wishFeedback" aria-live="polite"></p>
-
-      <div class="wish-popup-actions">
-        <button class="wish-send-button" id="sendWish" type="button" disabled>
-          <span class="wish-send-label">💖 Send Wish</span>
-          <span class="wish-send-spinner" aria-hidden="true"></span>
-        </button>
-      </div>
-
-      <button class="wish-skip-button" id="skipWish" type="button">🤍 Skip</button>
-    </section>
-  </div>
-
-  <div class="wish-celebration" id="wishCelebration" aria-hidden="true" aria-live="polite"></div>
-
-  <script src="js/birthday-wish.config.js"></script>
-
   <div class="custom-cursor" id="customCursor" aria-hidden="true"></div>
   <div class="sparkle-layer" id="sparkleLayer" aria-hidden="true"></div>
 
