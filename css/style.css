@@ -1285,6 +1285,17 @@ body.has-custom-cursor .custom-cursor {
   }
 }
 
+@keyframes celebrationPop {
+  0%, 100% {
+    transform: translateY(0) scale(0.92);
+    opacity: 0.82;
+  }
+  50% {
+    transform: translateY(-0.35rem) scale(1.08);
+    opacity: 1;
+  }
+}
+
 @keyframes teddyOops {
   0%, 100% {
     transform: translateY(0) rotate(0);
@@ -1731,6 +1742,21 @@ body.has-global-music-bar {
   backdrop-filter: blur(18px);
   transform: translateX(-50%);
   z-index: 36;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+}
+
+.global-music-bar.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.global-music-bar:not(.is-visible) {
+  transform: translateX(-50%) translateY(16px);
 }
 
 .global-music-bar.is-playing {
@@ -1820,6 +1846,125 @@ body.has-global-music-bar {
 .global-music-button:focus-visible,
 .global-music-stop:focus-visible {
   outline-offset: 3px;
+}
+
+.section-description,
+.page-hero p,
+.page-note,
+.chapter-card p,
+.music-copy,
+.music-status,
+.video-status,
+.video-preview::after,
+.countdown-note,
+.letter-body,
+.letter-signature,
+.reason-card-face p,
+.timeline-copy p,
+.cake-memory figcaption,
+.passcode-copy,
+.passcode-message {
+  color: #6f4a73 !important;
+}
+
+.page-action,
+.site-nav a,
+.chapter-card h3,
+.section-kicker,
+.chapter-index,
+.reason-number,
+.music-tag,
+.volume-control span,
+.global-music-label,
+.global-music-state {
+  color: #7a4f7d;
+}
+
+.countdown-section.is-complete .countdown-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.countdown-celebration {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.countdown-celebration-text {
+  position: absolute;
+  left: 50%;
+  bottom: 0.9rem;
+  transform: translateX(-50%);
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  font-weight: 700;
+  color: var(--rose-deep);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 12px 28px rgba(168, 90, 119, 0.18);
+}
+
+.celebration-teddy {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 40%, var(--ink) 0 0.18rem, transparent 0.2rem),
+    radial-gradient(circle at 66% 40%, var(--ink) 0 0.18rem, transparent 0.2rem),
+    radial-gradient(circle at 50% 62%, #ffffff 0 34%, var(--teddy-soft) 35% 100%);
+  box-shadow:
+    -1.3rem -0.95rem 0 -1.6rem var(--teddy),
+    1.3rem -0.95rem 0 -1.6rem var(--teddy),
+    0 16px 34px rgba(112, 70, 49, 0.18);
+  animation: teddyFloat 1.8s ease-in-out infinite;
+}
+
+.celebration-heart,
+.celebration-spark {
+  position: absolute;
+  font-size: 1.4rem;
+  animation: celebrationPop 1.6s ease-in-out infinite;
+  text-shadow: 0 8px 18px rgba(168, 90, 119, 0.18);
+}
+
+.celebration-heart-one {
+  top: 18%;
+  left: 24%;
+  animation-delay: 0s;
+}
+
+.celebration-heart-two {
+  top: 12%;
+  right: 24%;
+  animation-delay: 0.3s;
+}
+
+.celebration-heart-three {
+  bottom: 24%;
+  left: 18%;
+  animation-delay: 0.6s;
+}
+
+.celebration-spark-one {
+  top: 18%;
+  right: 14%;
+  animation-delay: 0.15s;
+}
+
+.celebration-spark-two {
+  bottom: 18%;
+  right: 18%;
+  animation-delay: 0.45s;
+}
+
+.celebration-spark-three {
+  top: 34%;
+  left: 12%;
+  animation-delay: 0.75s;
 }
 
 body::before,

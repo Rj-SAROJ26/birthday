@@ -60,22 +60,22 @@ document.addEventListener("DOMContentLoaded", () => {
   birthdaySong.volume = 0.54;
   const musicStorageKey = "roshaniBirthdayMusicState";
   const loveLetterText = [
-    "Happy birthday, my love 💖 You make my world softer and warmer.",
+    "Happy Birthday to my favorite person, my best friend, my biggest supporter, and the best partner I could ever ask for. 💖",
     "",
-    "Your smile feels like sunshine ☀️ and your laugh feels like home 🏡.",
+    "Thank you for always being by my side, supporting me, making me laugh, and believing in me through everything. 🌷 Life feels so much brighter, happier, and more beautiful with you in it. ✨ Every moment we spend together becomes a memory I'll cherish forever. 💕",
     "",
-    "I hope your year is full of sweet wins, good health, and tiny joys 🌸.",
+    "I hope this year brings you endless happiness, good health, success, and everything you've been wishing for. 🌸 You deserve all the love, joy, and blessings this world has to offer. 🫶",
     "",
-    "May your dreams bloom gently, just like you 🌷✨.",
+    "May your smile never fade, your dreams come true, and may we continue creating beautiful and unforgettable memories together. 💐",
     "",
-    "You mean the world to me, and I feel lucky every single day 💞.",
+    "You truly mean the world to me, and I'm so grateful to have you in my life. 💞",
     "",
-    "Happy birthday again, my sweetheart 🎂🎉 I hope today feels magical.",
+    "Happy Birthday once again! Wishing you the most amazing day and an even more amazing year ahead. 🎂🎉",
     "",
-    "I love you more than words can say, and I will always stay by your side 🫶.",
+    "I love you more than words can ever express, and I promise to always stand by your side. 🥰 Here's to celebrating many more birthdays together. 💝",
     "",
-    "Forever yours 💌",
-    "With all my love 💗"
+    "Forever Yours, 💌",
+    "With All My Love 💗"
   ].join("\n");
   const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -114,6 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const musicBarStop = musicBar.querySelector(".global-music-stop");
   const musicBarCopy = musicBar.querySelector(".global-music-copy");
   let musicResumePending = Boolean(storedMusicState.active);
+  let musicBarVisible = Boolean(storedMusicState.active);
 
   function saveMusicState(nextState = {}) {
     const currentState = {
@@ -137,7 +138,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const isPlaying = !birthdaySong.paused;
+    musicBarVisible = isPlaying;
+    musicBar.classList.toggle("is-visible", musicBarVisible);
     musicBar.classList.toggle("is-playing", isPlaying);
+    document.body.classList.toggle("has-global-music-bar", musicBarVisible);
     musicBarState.textContent = isPlaying ? "Pause" : "Play";
     musicBarCopy.textContent = isPlaying
       ? "Your song is playing softly across the pages."
@@ -157,7 +161,8 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       await birthdaySong.play();
       musicResumePending = false;
-      saveMusicState({ active: true, currentTime: birthdaySong.currentTime, volume: birthdaySong.volume });
+      saveMusicState({ active: true, visible: true, currentTime: birthdaySong.currentTime, volume: birthdaySong.volume });
+      updateGlobalMusicBar();
     } catch (error) {
       musicResumePending = true;
     }
@@ -167,12 +172,14 @@ document.addEventListener("DOMContentLoaded", () => {
     birthdaySong.pause();
     birthdaySong.currentTime = 0;
     musicResumePending = false;
-    saveMusicState({ active: false, currentTime: 0 });
+    musicBar.classList.remove("is-visible");
+    saveMusicState({ active: false, visible: false, currentTime: 0 });
   }
 
   function syncMusicState() {
     saveMusicState({
       active: !birthdaySong.paused,
+      visible: !birthdaySong.paused,
       currentTime: birthdaySong.currentTime,
       volume: birthdaySong.volume,
     });
@@ -475,6 +482,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let progress = 0;
   let letterTyped = false;
   let finaleTimerId = null;
+  let countdownCelebrationShown = false;
 
   if (loaderScreen && experience && loadingPercentage && loadingProgress) {
     // Animate the loading percentage from 0 to 100.
@@ -601,6 +609,34 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (hasCountdownFeature) {
+    function launchCountdownCelebration() {
+      if (countdownCelebrationShown || !countdownSection) {
+        return;
+      }
+
+      countdownCelebrationShown = true;
+      countdownSection.classList.add("is-complete");
+
+      const celebration = document.createElement("div");
+      celebration.className = "countdown-celebration";
+      celebration.setAttribute("aria-hidden", "true");
+      celebration.innerHTML = `
+        <span class="celebration-teddy"></span>
+        <span class="celebration-heart celebration-heart-one">❤</span>
+        <span class="celebration-heart celebration-heart-two">❤</span>
+        <span class="celebration-heart celebration-heart-three">❤</span>
+        <span class="celebration-spark celebration-spark-one">✦</span>
+        <span class="celebration-spark celebration-spark-two">✦</span>
+        <span class="celebration-spark celebration-spark-three">✦</span>
+        <p class="countdown-celebration-text">The birthday moment is here 🎉</p>
+      `;
+      countdownSection.appendChild(celebration);
+
+      if (countdownNote) {
+        countdownNote.textContent = "The countdown is complete. Time to celebrate! 🎉";
+      }
+    }
+
     function updateCountdown() {
       const remainingMilliseconds = countdownTarget.getTime() - Date.now();
 
@@ -609,6 +645,7 @@ document.addEventListener("DOMContentLoaded", () => {
         countdownHours.textContent = "00";
         countdownMinutes.textContent = "00";
         countdownSeconds.textContent = "00";
+        launchCountdownCelebration();
         return;
       }
 
@@ -776,8 +813,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(musicBar);
   }
 
-  document.body.classList.add("has-global-music-bar");
-
   updateGlobalMusicBar();
 
   musicBarButton?.addEventListener("click", () => {
@@ -824,7 +859,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   if (hasVideoFeature) {
-    openVideoModal = (videoButton = null) => {
+    openVideoModal = async (videoButton = null) => {
       if (videoButton?.dataset.videoSrc) {
         memoryVideo.pause();
         memoryVideo.src = videoButton.dataset.videoSrc;
@@ -835,10 +870,16 @@ document.addEventListener("DOMContentLoaded", () => {
       videoModal.classList.add("is-open");
       videoModal.setAttribute("aria-hidden", "false");
       const videoTitle = videoButton?.dataset.videoTitle || "memory video";
-      videoStatus.textContent = `${videoTitle} is ready, Sona. Press play to relive it.`;
+      videoStatus.textContent = `${videoTitle} is ready, Sona. Playing it now.`;
 
       if (memoryVideo.readyState > 0) {
         memoryVideo.currentTime = 0;
+      }
+
+      try {
+        await memoryVideo.play();
+      } catch (error) {
+        videoStatus.textContent = `${videoTitle} is ready, Sona. Press play in the player to start it.`;
       }
     };
 
@@ -853,6 +894,18 @@ document.addEventListener("DOMContentLoaded", () => {
         openVideoModal(videoButton);
       });
     });
+
+    document.querySelectorAll(".video-preview").forEach((preview) => {
+      preview.addEventListener("click", () => {
+        const videoCard = preview.closest(".video-card");
+        const videoButton = videoCard?.querySelector(".video-open");
+
+        if (videoButton) {
+          openVideoModal(videoButton);
+        }
+      });
+    });
+
     videoCloseButton.addEventListener("click", closeVideoModal);
     videoBackdrop.addEventListener("click", closeVideoModal);
     memoryVideo.addEventListener("error", () => {
