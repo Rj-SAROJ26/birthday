@@ -58,23 +58,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const birthdaySong = new Audio(birthdaySongSource);
   birthdaySong.loop = true;
   birthdaySong.volume = 0.54;
+  const musicStorageKey = "roshaniBirthdayMusicState";
   const loveLetterText = [
-    "Happy Birthday to my favorite person, my best friend, my biggest supporter, and the best partner I could ever ask for.",
+    "Happy birthday, my love 💖 You make my world softer and warmer.",
     "",
-    "Thank you for always being by my side, supporting me, making me laugh, and believing in me through everything. Life feels so much brighter, happier, and more beautiful with you in it. Every moment we spend together becomes a memory I'll cherish forever.",
+    "Your smile feels like sunshine ☀️ and your laugh feels like home 🏡.",
     "",
-    "I hope this year brings you endless happiness, good health, success, and everything you've been wishing for. You deserve all the love, joy, and blessings this world has to offer.",
+    "I hope your year is full of sweet wins, good health, and tiny joys 🌸.",
     "",
-    "May your smile never fade, your dreams come true, and may we continue creating beautiful and unforgettable memories together.",
+    "May your dreams bloom gently, just like you 🌷✨.",
     "",
-    "You truly mean the world to me, and I'm so grateful to have you in my life.",
+    "You mean the world to me, and I feel lucky every single day 💞.",
     "",
-    "Happy Birthday once again! Wishing you the most amazing day and an even more amazing year ahead.",
+    "Happy birthday again, my sweetheart 🎂🎉 I hope today feels magical.",
     "",
-    "I love you more than words can ever express, and I promise to always stand by your side. Here's to celebrating many more birthdays together.",
+    "I love you more than words can say, and I will always stay by your side 🫶.",
     "",
-    "Forever Yours,",
-    "With All My Love"
+    "Forever yours 💌",
+    "With all my love 💗"
   ].join("\n");
   const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -85,6 +86,98 @@ document.addEventListener("DOMContentLoaded", () => {
   const hasCountdownFeature = Boolean(countdownSection && countdownDays && countdownHours && countdownMinutes && countdownSeconds && countdownNote);
   const hasFinaleFeature = Boolean(launchFinaleButton && surpriseSection && fireworksLayer && confettiLayer);
   const passcodeWindowName = "roshaniBirthdayUnlocked";
+  const storedMusicState = (() => {
+    try {
+      return JSON.parse(localStorage.getItem(musicStorageKey) || "null") || {};
+    } catch (error) {
+      return {};
+    }
+  })();
+  const musicBar = document.createElement("aside");
+  musicBar.className = "global-music-bar";
+  musicBar.setAttribute("aria-live", "polite");
+  musicBar.innerHTML = `
+    <button class="global-music-button" type="button">
+      <span class="global-music-label">Music</span>
+      <strong class="global-music-state">Play</strong>
+    </button>
+    <label class="global-music-volume">
+      <span>Volume</span>
+      <input type="range" min="0" max="1" step="0.01" value="${Number.isFinite(storedMusicState.volume) ? storedMusicState.volume : 0.54}">
+    </label>
+    <button class="global-music-stop" type="button">Stop</button>
+    <p class="global-music-copy">The song will stay ready until you stop it.</p>
+  `;
+  const musicBarButton = musicBar.querySelector(".global-music-button");
+  const musicBarState = musicBar.querySelector(".global-music-state");
+  const musicBarVolume = musicBar.querySelector("input");
+  const musicBarStop = musicBar.querySelector(".global-music-stop");
+  const musicBarCopy = musicBar.querySelector(".global-music-copy");
+  let musicResumePending = Boolean(storedMusicState.active);
+
+  function saveMusicState(nextState = {}) {
+    const currentState = {
+      active: !birthdaySong.paused,
+      currentTime: Number.isFinite(birthdaySong.currentTime) ? birthdaySong.currentTime : 0,
+      volume: Number.isFinite(birthdaySong.volume) ? birthdaySong.volume : 0.54,
+      ...storedMusicState,
+      ...nextState,
+    };
+
+    try {
+      localStorage.setItem(musicStorageKey, JSON.stringify(currentState));
+    } catch (error) {
+      // If storage is blocked, the music still works for this session.
+    }
+  }
+
+  function updateGlobalMusicBar() {
+    if (!musicBarButton || !musicBarState || !musicBarVolume || !musicBarStop || !musicBarCopy) {
+      return;
+    }
+
+    const isPlaying = !birthdaySong.paused;
+    musicBar.classList.toggle("is-playing", isPlaying);
+    musicBarState.textContent = isPlaying ? "Pause" : "Play";
+    musicBarCopy.textContent = isPlaying
+      ? "Your song is playing softly across the pages."
+      : "The song is waiting here for you.";
+    if (hasMusicFeature) {
+      musicBarVolume.value = String(birthdaySong.volume);
+    }
+  }
+
+  async function startMusic(keepCurrentTime = true) {
+    if (keepCurrentTime && Number.isFinite(storedMusicState.currentTime)) {
+      birthdaySong.currentTime = storedMusicState.currentTime;
+    }
+
+    birthdaySong.volume = Number.isFinite(storedMusicState.volume) ? storedMusicState.volume : birthdaySong.volume;
+
+    try {
+      await birthdaySong.play();
+      musicResumePending = false;
+      saveMusicState({ active: true, currentTime: birthdaySong.currentTime, volume: birthdaySong.volume });
+    } catch (error) {
+      musicResumePending = true;
+    }
+  }
+
+  function stopMusic() {
+    birthdaySong.pause();
+    birthdaySong.currentTime = 0;
+    musicResumePending = false;
+    saveMusicState({ active: false, currentTime: 0 });
+  }
+
+  function syncMusicState() {
+    saveMusicState({
+      active: !birthdaySong.paused,
+      currentTime: birthdaySong.currentTime,
+      volume: birthdaySong.volume,
+    });
+    updateGlobalMusicBar();
+  }
 
   function hasStoredPasscodeUnlock() {
     try {
@@ -273,6 +366,52 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   createFloatingBalloonLayer();
+
+  function createFloatingPandaLayer() {
+    if (document.querySelector(".website-pandas")) {
+      return;
+    }
+
+    const pandaLayer = document.createElement("div");
+    pandaLayer.className = "website-pandas";
+    pandaLayer.setAttribute("aria-hidden", "true");
+    pandaLayer.innerHTML = `
+      <span class="website-panda panda-left">
+        <span class="website-panda-ear website-panda-ear-left"></span>
+        <span class="website-panda-ear website-panda-ear-right"></span>
+        <span class="website-panda-face">
+          <span class="website-panda-eye website-panda-eye-left"></span>
+          <span class="website-panda-eye website-panda-eye-right"></span>
+          <span class="website-panda-muzzle"></span>
+          <span class="website-panda-nose"></span>
+        </span>
+      </span>
+      <span class="website-panda panda-center">
+        <span class="website-panda-ear website-panda-ear-left"></span>
+        <span class="website-panda-ear website-panda-ear-right"></span>
+        <span class="website-panda-face">
+          <span class="website-panda-eye website-panda-eye-left"></span>
+          <span class="website-panda-eye website-panda-eye-right"></span>
+          <span class="website-panda-muzzle"></span>
+          <span class="website-panda-nose"></span>
+        </span>
+      </span>
+      <span class="website-panda panda-right">
+        <span class="website-panda-ear website-panda-ear-left"></span>
+        <span class="website-panda-ear website-panda-ear-right"></span>
+        <span class="website-panda-face">
+          <span class="website-panda-eye website-panda-eye-left"></span>
+          <span class="website-panda-eye website-panda-eye-right"></span>
+          <span class="website-panda-muzzle"></span>
+          <span class="website-panda-nose"></span>
+        </span>
+      </span>
+    `;
+
+    document.body.prepend(pandaLayer);
+  }
+
+  createFloatingPandaLayer();
 
   function formatOrdinal(number) {
     const lastTwoDigits = number % 100;
@@ -559,6 +698,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const isPlaying = !loveSong.paused;
       musicPlayer.classList.toggle("is-playing", isPlaying);
       musicToggle.textContent = isPlaying ? "Pause" : "Play";
+      saveMusicState({
+        active: isPlaying,
+        currentTime: loveSong.currentTime,
+        volume: loveSong.volume,
+      });
+      updateGlobalMusicBar();
     }
 
     toggleMusicPlayback = async (forcePlay = false) => {
@@ -575,12 +720,22 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       loveSong.pause();
-      musicStatus.textContent = "Music paused for a quiet moment with you.";
+      musicStatus.textContent = "Music paused for a quiet little moment.";
       updateMusicState();
     };
 
-    loveSong.volume = Number(musicVolume.value);
+    loveSong.volume = Number.isFinite(storedMusicState.volume) ? storedMusicState.volume : Number(musicVolume.value);
+    if (Number.isFinite(storedMusicState.currentTime)) {
+      loveSong.currentTime = storedMusicState.currentTime;
+    }
     updateMusicState();
+    updateGlobalMusicBar();
+
+    if (storedMusicState.active) {
+      window.setTimeout(() => {
+        startMusic(true);
+      }, 0);
+    }
 
     musicToggle.addEventListener("click", () => {
       toggleMusicPlayback();
@@ -588,10 +743,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     musicVolume.addEventListener("input", () => {
       loveSong.volume = Number(musicVolume.value);
+      saveMusicState({ volume: loveSong.volume });
+      updateGlobalMusicBar();
     });
 
     loveSong.addEventListener("play", updateMusicState);
     loveSong.addEventListener("pause", updateMusicState);
+    loveSong.addEventListener("timeupdate", () => {
+      if (!loveSong.seeking) {
+        saveMusicState({
+          active: !loveSong.paused,
+          currentTime: loveSong.currentTime,
+          volume: loveSong.volume,
+        });
+      }
+    });
+    loveSong.addEventListener("loadedmetadata", () => {
+      if (Number.isFinite(storedMusicState.currentTime) && storedMusicState.currentTime > 0 && storedMusicState.currentTime < loveSong.duration) {
+        loveSong.currentTime = storedMusicState.currentTime;
+      }
+    });
     loveSong.addEventListener("ended", () => {
       updateMusicState();
       musicStatus.textContent = "The song finished. Press play whenever you want to feel it again.";
@@ -600,6 +771,57 @@ document.addEventListener("DOMContentLoaded", () => {
       musicStatus.textContent = `Add ${birthdaySongSource} so your song can play here.`;
     });
   }
+
+  if (musicBar.parentElement !== document.body) {
+    document.body.appendChild(musicBar);
+  }
+
+  document.body.classList.add("has-global-music-bar");
+
+  updateGlobalMusicBar();
+
+  musicBarButton?.addEventListener("click", () => {
+    if (birthdaySong.paused) {
+      startMusic(true);
+      return;
+    }
+
+    birthdaySong.pause();
+    saveMusicState({ active: false, currentTime: birthdaySong.currentTime, volume: birthdaySong.volume });
+    updateGlobalMusicBar();
+  });
+
+  if (!hasMusicFeature && storedMusicState.active) {
+    window.setTimeout(() => {
+      startMusic(true);
+    }, 0);
+  }
+
+  musicBarVolume?.addEventListener("input", () => {
+    birthdaySong.volume = Number(musicBarVolume.value);
+    saveMusicState({ volume: birthdaySong.volume });
+    if (hasMusicFeature) {
+      musicVolume.value = String(birthdaySong.volume);
+    }
+    updateGlobalMusicBar();
+  });
+
+  musicBarStop?.addEventListener("click", () => {
+    stopMusic();
+    if (hasMusicFeature) {
+      musicStatus.textContent = "Music stopped. Press play whenever you want it back.";
+      musicToggle.textContent = "Play";
+      musicPlayer.classList.remove("is-playing");
+    }
+  });
+
+  window.addEventListener("beforeunload", () => {
+    saveMusicState({
+      active: !birthdaySong.paused,
+      currentTime: birthdaySong.currentTime,
+      volume: birthdaySong.volume,
+    });
+  });
 
   if (hasVideoFeature) {
     openVideoModal = (videoButton = null) => {
