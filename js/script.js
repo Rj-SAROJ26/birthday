@@ -1,4 +1,4 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
   const loaderScreen = document.querySelector(".loader-screen");
   const experience = document.getElementById("experience");
   const loadingPercentage = document.getElementById("loadingPercentage");
@@ -72,22 +72,22 @@
   birthdaySong.volume = 0.54;
   const musicStorageKey = "roshaniBirthdayMusicState";
   const loveLetterText = [
-    "Happy Birthday to my favorite person, my best friend, my biggest supporter, and the best partner I could ever ask for. ðŸ’–",
+    "Happy Birthday to my favorite person, my best friend, my biggest supporter, and the best partner I could ever ask for. 💖",
     "",
-    "Thank you for always being by my side, supporting me, making me laugh, and believing in me through everything. ðŸŒ· Life feels so much brighter, happier, and more beautiful with you in it. âœ¨ Every moment we spend together becomes a memory I'll cherish forever. ðŸ’•",
+    "Thank you for always being by my side, supporting me, making me laugh, and believing in me through everything. 🌷 Life feels so much brighter, happier, and more beautiful with you in it. ✨ Every moment we spend together becomes a memory I'll cherish forever. 💕",
     "",
-    "I hope this year brings you endless happiness, good health, success, and everything you've been wishing for. ðŸŒ¸ You deserve all the love, joy, and blessings this world has to offer. ðŸ«¶",
+    "I hope this year brings you endless happiness, good health, success, and everything you've been wishing for. 🌸 You deserve all the love, joy, and blessings this world has to offer. 🫶",
     "",
-    "May your smile never fade, your dreams come true, and may we continue creating beautiful and unforgettable memories together. ðŸ’",
+    "May your smile never fade, your dreams come true, and may we continue creating beautiful and unforgettable memories together. 💐",
     "",
-    "You truly mean the world to me, and I'm so grateful to have you in my life. ðŸ’ž",
+    "You truly mean the world to me, and I'm so grateful to have you in my life. 💞",
     "",
-    "Happy Birthday once again! Wishing you the most amazing day and an even more amazing year ahead. ðŸŽ‚ðŸŽ‰",
+    "Happy Birthday once again! Wishing you the most amazing day and an even more amazing year ahead. 🎂🎉",
     "",
-    "I love you more than words can ever express, and I promise to always stand by your side. ðŸ¥° Here's to celebrating many more birthdays together. ðŸ’",
+    "I love you more than words can ever express, and I promise to always stand by your side. 🥰 Here's to celebrating many more birthdays together. 💝",
     "",
-    "Forever Yours, ðŸ’Œ",
-    "With All My Love ðŸ’—"
+    "Forever Yours, 💌",
+    "With All My Love 💖"
   ].join("\n");
   const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -780,7 +780,7 @@
       screenResolution: getScreenResolution(),
       currentPageUrl: window.location.href,
       recipientEmail: wishConfig.emailjs?.recipientEmail || "rajsagarsaroj17@gmail.com",
-      emailSubject: "ðŸ’– New Birthday Wish Received",
+      emailSubject: "💖 New Birthday Wish Received",
       userAgent: navigator.userAgent || "",
       language: navigator.language || "",
       createdAtIso: new Date().toISOString(),
@@ -905,11 +905,11 @@
     }
 
     clearWishCelebration();
-    wishCelebration.textContent = "âœ¨ Your wish has been safely sent to the universe... and secretly to someone who loves you. â¤ï¸";
+    wishCelebration.textContent = "✨ Your wish has been safely sent to the universe... and secretly to someone who loves you. ❤️";
     wishCelebration.classList.add("is-visible");
     const celebrationMessage = typeof arguments[0] === "string" && arguments[0].trim().length > 0
       ? arguments[0]
-      : "âœ¨ Your wish has been safely sent to the universe... and secretly to someone who loves you. â¤ï¸";
+      : "✨ Your wish has been safely sent to the universe... and secretly to someone who loves you. ❤️";
     wishCelebration.textContent = celebrationMessage;
     wishCelebration.setAttribute("aria-hidden", "false");
 
@@ -1064,7 +1064,7 @@
     }
 
     if (wishSkipAttempts >= 10 && wishSkipAttempts < 25) {
-      setWishFeedback("ðŸ¥º Aww... Don't skip! Just write one little wish for me. â¤ï¸");
+      setWishFeedback("🥺 Aww... Don't skip! Just write one little wish for me. ❤️");
     }
 
     if (wishSkipAttempts >= wishSkipUnlockThreshold) {

@@ -2439,6 +2439,19 @@ body::after {
   padding-bottom: 4rem;
 }
 
+.page-home .welcome-section {
+  min-height: auto;
+  padding: 2.2rem 1.5rem 1rem;
+}
+
+.page-home .section-heading {
+  max-width: 36rem;
+}
+
+.page-home .chapter-grid {
+  margin-top: 1.15rem;
+}
+
 .page-hero {
   padding: clamp(1.6rem, 4vw, 2.4rem);
   text-align: center;
@@ -2910,8 +2923,8 @@ body.is-gated {
 
 .welcome-card h1 {
   font-family: "Great Vibes", cursive;
-  font-size: clamp(3.2rem, 8vw, 5.8rem);
-  line-height: 0.95;
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  line-height: 1.08;
   color: var(--ink);
   text-shadow: 0 10px 30px rgba(168, 90, 119, 0.18);
 }
@@ -2968,8 +2981,8 @@ body.is-gated {
 }
 
 .section-heading h2 {
-  font-size: clamp(2rem, 5vw, 3.4rem);
-  line-height: 1.1;
+  font-size: clamp(1.75rem, 4.1vw, 2.7rem);
+  line-height: 1.15;
   color: var(--ink);
 }
 
