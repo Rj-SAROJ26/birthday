@@ -37,6 +37,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const blowCandlesButton = document.getElementById("blowCandles");
   const cakeStage = document.querySelector(".cake-stage");
   const cakeMessage = document.getElementById("cakeMessage");
+  const wishPopup = document.getElementById("wishPopup");
+  const wishPopupDialog = document.querySelector(".wish-popup-dialog");
+  const wishTextarea = document.getElementById("birthdayWish");
+  const wishSendButton = document.getElementById("sendWish");
+  const wishSkipButton = document.getElementById("skipWish");
+  const wishFeedback = document.getElementById("wishFeedback");
+  const wishCelebration = document.getElementById("wishCelebration");
   const launchFinaleButton = document.getElementById("launchFinale");
   const surpriseSection = document.getElementById("surprise");
   const fireworksLayer = document.getElementById("fireworksLayer");
@@ -85,7 +92,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const hasVideoFeature = Boolean(openVideoButtons.length && videoModal && memoryVideo && videoStatus && videoCloseButton && videoBackdrop);
   const hasCountdownFeature = Boolean(countdownSection && countdownDays && countdownHours && countdownMinutes && countdownSeconds && countdownNote);
   const hasFinaleFeature = Boolean(launchFinaleButton && surpriseSection && fireworksLayer && confettiLayer);
+  const hasWishFeature = Boolean(wishPopup && wishPopupDialog && wishTextarea && wishSendButton && wishSkipButton && wishFeedback && wishCelebration && cakeStage && cakeMessage && blowCandlesButton);
+  const wishConfig = window.BirthdayWishConfig || {};
   const passcodeWindowName = "roshaniBirthdayUnlocked";
+  const wishSessionKey = "roshaniBirthdayWishSession";
+  const wishStorageState = (() => {
+    try {
+      return JSON.parse(sessionStorage.getItem(wishSessionKey) || "null") || {};
+    } catch (error) {
+      return {};
+    }
+  })();
   const storedMusicState = (() => {
     try {
       return JSON.parse(localStorage.getItem(musicStorageKey) || "null") || {};
@@ -115,6 +132,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const musicBarCopy = musicBar.querySelector(".global-music-copy");
   let musicResumePending = Boolean(storedMusicState.active);
   let musicBarVisible = Boolean(storedMusicState.active);
+  let wishPopupTimerId = null;
+  let wishSubmitting = false;
+  let wishSkipAttempts = 0;
+  let wishAlreadySent = Boolean(wishStorageState.sent);
+  let wishSkipUnlocked = false;
+  let wishSkipSuppressNextClick = false;
+  let wishSkipLastPosition = null;
+  let wishRecordId = wishStorageState.recordId || null;
+  let wishPopupOpen = false;
+  let wishCelebrationTimerId = null;
 
   function saveMusicState(nextState = {}) {
     const currentState = {
@@ -580,6 +607,454 @@ document.addEventListener("DOMContentLoaded", () => {
     viewerBackdrop.addEventListener("click", closeImageViewer);
   }
 
+  function setWishFeedback(message, tone = "info") {
+    if (!hasWishFeature) {
+      return;
+    }
+
+    wishFeedback.textContent = message;
+    wishFeedback.classList.remove("is-error", "is-success");
+
+    if (tone === "error") {
+      wishFeedback.classList.add("is-error");
+    } else if (tone === "success") {
+      wishFeedback.classList.add("is-success");
+    }
+  }
+
+  function saveWishSession(nextState = {}) {
+    try {
+      sessionStorage.setItem(wishSessionKey, JSON.stringify({
+        sent: wishAlreadySent,
+        recordId: wishRecordId,
+        ...wishStorageState,
+        ...nextState,
+      }));
+    } catch (error) {
+      // Session storage is optional. The wish flow still works without it.
+    }
+  }
+
+  function syncWishSendButtonState() {
+    if (!hasWishFeature) {
+      return;
+    }
+
+    const hasText = wishTextarea.value.trim().length > 0;
+    wishSendButton.disabled = !hasText || wishSubmitting || wishAlreadySent;
+    wishSendButton.setAttribute("aria-busy", String(wishSubmitting));
+  }
+
+  function generateWishRecordId() {
+    return `wish-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  }
+
+  function getBrowserName() {
+    const userAgent = navigator.userAgent || "";
+
+    if (/Edg\//.test(userAgent)) {
+      return "Microsoft Edge";
+    }
+
+    if (/OPR\//.test(userAgent)) {
+      return "Opera";
+    }
+
+    if (/Chrome\//.test(userAgent) && !/Chrom(e|ium)|Edg\//.test(userAgent)) {
+      return "Google Chrome";
+    }
+
+    if (/Firefox\//.test(userAgent)) {
+      return "Mozilla Firefox";
+    }
+
+    if (/Safari\//.test(userAgent) && /Version\//.test(userAgent) && !/Chrome\//.test(userAgent)) {
+      return "Safari";
+    }
+
+    return "Unknown Browser";
+  }
+
+  function getOperatingSystem() {
+    const userAgent = navigator.userAgent || "";
+
+    if (/Windows NT/i.test(userAgent)) {
+      return "Windows";
+    }
+
+    if (/Android/i.test(userAgent)) {
+      return "Android";
+    }
+
+    if (/iPhone|iPad|iPod/i.test(userAgent)) {
+      return "iOS";
+    }
+
+    if (/Mac OS X/i.test(userAgent)) {
+      return "macOS";
+    }
+
+    if (/Linux/i.test(userAgent)) {
+      return "Linux";
+    }
+
+    return "Unknown OS";
+  }
+
+  function getDeviceType() {
+    const userAgent = navigator.userAgent || "";
+
+    if (/iPad/i.test(userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
+      return "Tablet";
+    }
+
+    if (/Mobi|Android|iPhone|iPod/i.test(userAgent)) {
+      return "Mobile";
+    }
+
+    return "Desktop";
+  }
+
+  function getScreenResolution() {
+    return `${window.screen?.width || window.innerWidth} x ${window.screen?.height || window.innerHeight}`;
+  }
+
+  function getWishDateTime() {
+    return new Date().toLocaleString();
+  }
+
+  function buildWishRecord(wishText) {
+    if (!wishRecordId) {
+      wishRecordId = generateWishRecordId();
+    }
+
+    return {
+      wishId: wishRecordId,
+      birthdayWish: wishText,
+      dateTime: getWishDateTime(),
+      browserName: getBrowserName(),
+      deviceType: getDeviceType(),
+      operatingSystem: getOperatingSystem(),
+      screenResolution: getScreenResolution(),
+      currentPageUrl: window.location.href,
+      recipientEmail: wishConfig.emailjs?.recipientEmail || "rajsagarsaroj17@gmail.com",
+      emailSubject: "💖 New Birthday Wish Received",
+      userAgent: navigator.userAgent || "",
+      language: navigator.language || "",
+      createdAtIso: new Date().toISOString(),
+    };
+  }
+
+  function getWishServiceMessage() {
+    return "EmailJS and Firebase still need values in `js/birthday-wish.config.js`.";
+  }
+
+  function loadScriptOnce(source, readyCheck) {
+    if (readyCheck()) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = source;
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error(`Could not load ${source}`));
+      document.head.appendChild(script);
+    });
+  }
+
+  async function ensureFirebase() {
+    const firebaseConfig = wishConfig.firebase || {};
+
+    if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.appId) {
+      throw new Error("Firebase configuration is missing.");
+    }
+
+    await loadScriptOnce("https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js", () => Boolean(window.firebase?.initializeApp));
+    await loadScriptOnce("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js", () => Boolean(window.firebase?.firestore));
+
+    if (!window.firebase.apps.length) {
+      window.firebase.initializeApp(firebaseConfig);
+    }
+
+    return window.firebase.firestore();
+  }
+
+  async function saveWishToFirestore(wishRecord) {
+    const db = await ensureFirebase();
+    const firebaseConfig = wishConfig.firebase || {};
+    const collectionName = firebaseConfig.collectionName || "birthdayWishes";
+
+    await db.collection(collectionName).doc(wishRecord.wishId).set({
+      ...wishRecord,
+      savedAt: window.firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  }
+
+  async function sendWishEmail(wishRecord) {
+    const emailjsConfig = wishConfig.emailjs || {};
+
+    if (!emailjsConfig.publicKey || !emailjsConfig.serviceId || !emailjsConfig.templateId) {
+      throw new Error("EmailJS configuration is missing.");
+    }
+
+    const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        service_id: emailjsConfig.serviceId,
+        template_id: emailjsConfig.templateId,
+        user_id: emailjsConfig.publicKey,
+        template_params: {
+          to_email: emailjsConfig.recipientEmail || "rajsagarsaroj17@gmail.com",
+          subject: wishRecord.emailSubject,
+          birthday_wish: wishRecord.birthdayWish,
+          date_time: wishRecord.dateTime,
+          browser_name: wishRecord.browserName,
+          device_type: wishRecord.deviceType,
+          operating_system: wishRecord.operatingSystem,
+          screen_resolution: wishRecord.screenResolution,
+          current_page_url: wishRecord.currentPageUrl,
+          wish_id: wishRecord.wishId,
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "EmailJS rejected the wish.");
+    }
+  }
+
+  function clearWishCelebration() {
+    if (!wishCelebration) {
+      return;
+    }
+
+    if (wishCelebrationTimerId) {
+      window.clearTimeout(wishCelebrationTimerId);
+      wishCelebrationTimerId = null;
+    }
+
+    wishCelebration.classList.remove("is-visible");
+    wishCelebration.setAttribute("aria-hidden", "true");
+    wishCelebration.textContent = "";
+  }
+
+  function showWishCelebration() {
+    if (!hasWishFeature) {
+      return;
+    }
+
+    clearWishCelebration();
+    wishCelebration.textContent = "✨ Your wish has been safely sent to the universe... and secretly to someone who loves you. ❤️";
+    wishCelebration.classList.add("is-visible");
+    wishCelebration.setAttribute("aria-hidden", "false");
+
+    createConfettiBurst(96);
+    createSparkBurst(window.innerWidth / 2, window.innerHeight / 2, 30, "wish-spark");
+    createSparkBurst(window.innerWidth * 0.42, window.innerHeight * 0.4, 18, "wish-spark");
+    createSparkBurst(window.innerWidth * 0.58, window.innerHeight * 0.44, 18, "wish-spark");
+
+    wishCelebrationTimerId = window.setTimeout(() => {
+      clearWishCelebration();
+    }, 3600);
+  }
+
+  function setWishPopupPosition(left, top) {
+    wishSkipButton.style.left = `${left}px`;
+    wishSkipButton.style.top = `${top}px`;
+    wishSkipButton.style.right = "auto";
+    wishSkipButton.style.bottom = "auto";
+    wishSkipLastPosition = { left, top };
+  }
+
+  function findWishSkipPosition() {
+    const popupRect = wishPopupDialog.getBoundingClientRect();
+    const textareaRect = wishTextarea.getBoundingClientRect();
+    const sendRect = wishSendButton.getBoundingClientRect();
+    const dialogStyle = window.getComputedStyle(wishPopupDialog);
+    const buttonWidth = wishSkipButton.offsetWidth;
+    const buttonHeight = wishSkipButton.offsetHeight;
+    const paddingLeft = Number.parseFloat(dialogStyle.paddingLeft) || 0;
+    const paddingTop = Number.parseFloat(dialogStyle.paddingTop) || 0;
+    const paddingRight = Number.parseFloat(dialogStyle.paddingRight) || 0;
+    const paddingBottom = Number.parseFloat(dialogStyle.paddingBottom) || 0;
+    const maxLeft = Math.max(paddingLeft, popupRect.width - paddingRight - buttonWidth);
+    const maxTop = Math.max(paddingTop, popupRect.height - paddingBottom - buttonHeight);
+    const forbiddenAreas = [
+      {
+        left: textareaRect.left - popupRect.left,
+        top: textareaRect.top - popupRect.top,
+        right: textareaRect.right - popupRect.left,
+        bottom: textareaRect.bottom - popupRect.top,
+      },
+      {
+        left: sendRect.left - popupRect.left,
+        top: sendRect.top - popupRect.top,
+        right: sendRect.right - popupRect.left,
+        bottom: sendRect.bottom - popupRect.top,
+      },
+    ];
+
+    function overlaps(candidate) {
+      return forbiddenAreas.some((area) => !(
+        candidate.right < area.left - 10 ||
+        candidate.left > area.right + 10 ||
+        candidate.bottom < area.top - 10 ||
+        candidate.top > area.bottom + 10
+      ));
+    }
+
+    for (let attempt = 0; attempt < 40; attempt += 1) {
+      const left = paddingLeft + Math.random() * Math.max(1, maxLeft - paddingLeft);
+      const top = paddingTop + Math.random() * Math.max(1, maxTop - paddingTop);
+      const candidate = {
+        left,
+        top,
+        right: left + buttonWidth,
+        bottom: top + buttonHeight,
+      };
+
+      const isDifferent = !wishSkipLastPosition ||
+        Math.abs(wishSkipLastPosition.left - left) > 24 ||
+        Math.abs(wishSkipLastPosition.top - top) > 24;
+
+      if (!overlaps(candidate) && isDifferent) {
+        return { left, top };
+      }
+    }
+
+    const fallbackPositions = [
+      { left: paddingLeft, top: paddingTop },
+      { left: Math.max(paddingLeft, maxLeft - 6), top: paddingTop },
+      { left: paddingLeft, top: Math.max(paddingTop, maxTop - 6) },
+      { left: Math.max(paddingLeft, maxLeft - 6), top: Math.max(paddingTop, maxTop - 6) },
+    ];
+
+    return fallbackPositions.find((position) => {
+      const candidate = {
+        left: position.left,
+        top: position.top,
+        right: position.left + buttonWidth,
+        bottom: position.top + buttonHeight,
+      };
+      return !overlaps(candidate);
+    }) || fallbackPositions[0];
+  }
+
+  function moveWishSkipButton(countAttempt = true) {
+    if (!hasWishFeature || wishSkipUnlocked) {
+      return;
+    }
+
+    const position = findWishSkipPosition();
+    setWishPopupPosition(position.left, position.top);
+
+    if (countAttempt) {
+      wishSkipAttempts += 1;
+    }
+
+    if (wishSkipAttempts >= 5 && wishSkipAttempts < 10) {
+      setWishFeedback("🥺 Aww... Don't skip! Just write one little wish for me. ❤️");
+    }
+
+    if (wishSkipAttempts >= 10) {
+      wishSkipUnlocked = true;
+      wishSkipButton.classList.add("is-relaxed");
+      setWishFeedback("You can skip now if you really want to.");
+    }
+  }
+
+  function openWishPopup() {
+    if (!hasWishFeature || wishPopupOpen) {
+      return;
+    }
+
+    wishPopupOpen = true;
+    wishSkipAttempts = 0;
+    wishSkipUnlocked = false;
+    wishSkipSuppressNextClick = false;
+    wishSkipButton.classList.remove("is-relaxed");
+    wishPopup.classList.add("is-open");
+    wishPopup.setAttribute("aria-hidden", "false");
+    document.body.classList.add("wish-popup-open");
+
+    if (wishAlreadySent) {
+      setWishFeedback("Your wish has already been safely sent in this session.", "success");
+    } else {
+      setWishFeedback("Write one tiny wish, then send it with love.");
+    }
+
+    syncWishSendButtonState();
+
+    window.requestAnimationFrame(() => {
+      moveWishSkipButton(false);
+      wishTextarea.focus();
+      if (wishTextarea.value.trim().length > 0) {
+        wishTextarea.setSelectionRange(wishTextarea.value.length, wishTextarea.value.length);
+      }
+    });
+  }
+
+  function closeWishPopup(clearDraft = false) {
+    if (!hasWishFeature) {
+      return;
+    }
+
+    wishPopupOpen = false;
+    wishPopup.classList.remove("is-open");
+    wishPopup.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("wish-popup-open");
+
+    if (clearDraft) {
+      wishTextarea.value = "";
+      setWishFeedback("");
+    }
+
+    syncWishSendButtonState();
+  }
+
+  async function submitWish() {
+    if (!hasWishFeature || wishSubmitting || wishAlreadySent) {
+      return;
+    }
+
+    const wishText = wishTextarea.value.trim();
+
+    if (!wishText) {
+      setWishFeedback("Please write at least one character before sending.", "error");
+      wishTextarea.focus();
+      return;
+    }
+
+    const wishRecord = buildWishRecord(wishText);
+    wishRecordId = wishRecord.wishId;
+    wishSubmitting = true;
+    setWishFeedback("Sending your wish with love...");
+    syncWishSendButtonState();
+
+    try {
+      await Promise.all([
+        sendWishEmail(wishRecord),
+        saveWishToFirestore(wishRecord),
+      ]);
+
+      wishAlreadySent = true;
+      saveWishSession({ sent: true, recordId: wishRecordId });
+      closeWishPopup(true);
+      showWishCelebration();
+    } catch (error) {
+      setWishFeedback(`Sorry, the wish couldn't be sent right now. ${error?.message?.includes("configuration") ? getWishServiceMessage() : "Please try again in a moment."}`, "error");
+    } finally {
+      wishSubmitting = false;
+      syncWishSendButtonState();
+    }
+  }
+
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") {
       return;
@@ -591,6 +1066,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (hasVideoFeature && videoModal.classList.contains("is-open")) {
       closeVideoModal();
+    }
+
+    if (hasWishFeature && wishPopupOpen) {
+      closeWishPopup(false);
     }
   });
 
@@ -1130,6 +1609,14 @@ document.addEventListener("DOMContentLoaded", () => {
       cakeMessage.textContent = "Wish sent, Sona. The candles turned into golden teddy sparkles just for you.";
       createCandleWish();
       createConfettiBurst(54);
+
+      if (wishPopupTimerId) {
+        window.clearTimeout(wishPopupTimerId);
+      }
+
+      wishPopupTimerId = window.setTimeout(() => {
+        openWishPopup();
+      }, 1000);
     });
   }
 
@@ -1156,6 +1643,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.querySelectorAll("button").forEach((button) => {
+    if (button.classList.contains("wish-skip-button")) {
+      return;
+    }
+
     button.addEventListener("pointerdown", (event) => {
       if (event.pointerType === "mouse" || event.pointerType === "pen" || event.pointerType === "touch") {
         createButtonRipple(button, event.clientX, event.clientY);
@@ -1179,6 +1670,81 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  if (hasWishFeature) {
+    wishTextarea.addEventListener("input", () => {
+      syncWishSendButtonState();
+
+      if (!wishAlreadySent && wishTextarea.value.trim().length > 0 && wishFeedback.classList.contains("is-error")) {
+        setWishFeedback("");
+      }
+    });
+
+    wishSendButton.addEventListener("click", () => {
+      submitWish();
+    });
+
+    wishSkipButton.addEventListener("pointermove", (event) => {
+      if (!wishPopupOpen || wishSkipUnlocked || event.pointerType !== "mouse" || !hasFinePointer) {
+        return;
+      }
+
+      const skipRect = wishSkipButton.getBoundingClientRect();
+      const nearButton = event.clientX >= skipRect.left - 36 &&
+        event.clientX <= skipRect.right + 36 &&
+        event.clientY >= skipRect.top - 36 &&
+        event.clientY <= skipRect.bottom + 36;
+
+      if (nearButton) {
+        moveWishSkipButton(true);
+      }
+    });
+
+    wishSkipButton.addEventListener("pointerdown", (event) => {
+      if (!wishPopupOpen) {
+        return;
+      }
+
+      if (!wishSkipUnlocked && event.pointerType === "touch") {
+        event.preventDefault();
+        event.stopPropagation();
+        wishSkipSuppressNextClick = true;
+        moveWishSkipButton(true);
+        return;
+      }
+    });
+
+    wishSkipButton.addEventListener("click", (event) => {
+      if (!wishPopupOpen) {
+        return;
+      }
+
+      if (wishSkipSuppressNextClick) {
+        wishSkipSuppressNextClick = false;
+        event.preventDefault();
+        return;
+      }
+
+      if (!wishSkipUnlocked) {
+        event.preventDefault();
+
+        if (wishSkipAttempts >= 9) {
+          wishSkipUnlocked = true;
+          wishSkipButton.classList.add("is-relaxed");
+          closeWishPopup(false);
+          return;
+        }
+
+        moveWishSkipButton(true);
+        return;
+      }
+
+      closeWishPopup(false);
+    });
+
+    moveWishSkipButton(false);
+    syncWishSendButtonState();
+  }
 
   if (hasFinePointer && !prefersReducedMotion && customCursor && sparkleLayer) {
     document.body.classList.add("has-custom-cursor");

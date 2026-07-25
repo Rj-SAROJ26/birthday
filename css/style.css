@@ -88,6 +88,249 @@
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
+.wish-popup {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(28, 14, 22, 0.58);
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+  z-index: 42;
+  overflow: hidden;
+}
+
+.wish-popup.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wish-popup-backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+.wish-popup-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 34rem);
+  padding: 1.5rem 1.4rem 4.85rem;
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.36), transparent 45%),
+    rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.36);
+  box-shadow: 0 32px 80px rgba(12, 5, 10, 0.4);
+  backdrop-filter: blur(22px);
+  transform: scale(0.94) translateY(18px);
+  transition: transform 0.35s ease;
+}
+
+.wish-popup.is-open .wish-popup-dialog {
+  transform: scale(1) translateY(0);
+}
+
+.wish-popup-copy {
+  text-align: center;
+}
+
+.wish-popup-kicker {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--rose-deep);
+}
+
+.wish-popup-copy h2 {
+  margin-top: 0.55rem;
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.wish-popup-subtitle {
+  margin-top: 0.75rem;
+  line-height: 1.8;
+  color: rgba(60, 41, 64, 0.82);
+}
+
+.wish-popup-textarea {
+  display: block;
+  width: 100%;
+  min-height: 9.5rem;
+  margin-top: 1.3rem;
+  padding: 1rem 1rem 1.05rem;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  font: inherit;
+  line-height: 1.8;
+  color: var(--ink);
+  resize: vertical;
+}
+
+.wish-popup-textarea::placeholder {
+  color: rgba(60, 41, 64, 0.48);
+}
+
+.wish-popup-textarea:focus {
+  outline: none;
+  border-color: rgba(212, 140, 166, 0.65);
+  box-shadow: 0 0 0 4px rgba(212, 140, 166, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.wish-popup-feedback {
+  min-height: 1.6rem;
+  margin-top: 0.8rem;
+  text-align: center;
+  line-height: 1.6;
+  color: rgba(60, 41, 64, 0.78);
+}
+
+.wish-popup-feedback.is-error {
+  color: #8f4562;
+}
+
+.wish-popup-feedback.is-success {
+  color: var(--rose-deep);
+}
+
+.wish-popup-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.35rem;
+}
+
+.wish-send-button {
+  position: relative;
+  min-width: 11rem;
+  padding: 0.95rem 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--white);
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+  box-shadow: 0 16px 30px rgba(168, 90, 119, 0.3);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+}
+
+.wish-send-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 38px rgba(168, 90, 119, 0.36);
+}
+
+.wish-send-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.wish-send-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  box-shadow: 0 10px 22px rgba(168, 90, 119, 0.18);
+}
+
+.wish-send-label {
+  transition: opacity 0.2s ease;
+}
+
+.wish-send-spinner {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: rgba(255, 255, 255, 0.95);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  animation: wishSpinnerSpin 0.9s linear infinite;
+}
+
+.wish-send-button.is-loading {
+  cursor: wait;
+}
+
+.wish-send-button.is-loading .wish-send-label {
+  opacity: 0;
+}
+
+.wish-send-button.is-loading .wish-send-spinner {
+  opacity: 1;
+}
+
+.wish-skip-button {
+  position: absolute;
+  left: 1.2rem;
+  top: 1.2rem;
+  z-index: 2;
+  padding: 0.85rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 12px 24px rgba(148, 84, 108, 0.16);
+  cursor: pointer;
+  transition: left 0.38s ease, top 0.38s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  touch-action: manipulation;
+}
+
+.wish-skip-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 28px rgba(148, 84, 108, 0.2);
+}
+
+.wish-skip-button:active {
+  transform: translateY(0);
+}
+
+.wish-skip-button.is-relaxed {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(247, 215, 227, 0.72));
+}
+
+.wish-celebration {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 66;
+  width: min(92vw, 40rem);
+  padding: 1rem;
+  transform: translate(-50%, -48%) scale(0.94);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s ease;
+  pointer-events: none;
+}
+
+.wish-celebration.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.wish-celebration p {
+  padding: 1.35rem 1.4rem;
+  border-radius: 28px;
+  text-align: center;
+  line-height: 1.85;
+  color: var(--white);
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.26), transparent 45%),
+    rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  box-shadow: 0 26px 72px rgba(12, 5, 10, 0.38);
+  backdrop-filter: blur(18px);
+}
+
 .countdown-section,
 .letter-section,
 .music-section,
@@ -1204,6 +1447,12 @@ body.has-custom-cursor .custom-cursor {
   }
 }
 
+@keyframes wishSpinnerSpin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
 @keyframes smokeWish {
   0% {
     transform: translateY(0) scale(0.32);
@@ -1370,6 +1619,14 @@ body.has-custom-cursor .custom-cursor {
   .music-player-body {
     padding: 0;
   }
+
+  .wish-popup {
+    padding: 1rem;
+  }
+
+  .wish-popup-dialog {
+    width: min(100%, 34rem);
+  }
 }
 
 @media (max-width: 640px) {
@@ -1435,6 +1692,36 @@ body.has-custom-cursor .custom-cursor {
     width: 100%;
     padding: 0.8rem;
     border-radius: 24px;
+  }
+
+  .wish-popup-dialog {
+    width: 100%;
+    padding: 1.2rem 1rem 4.4rem;
+    border-radius: 24px;
+  }
+
+  .wish-popup-copy h2 {
+    font-size: clamp(2rem, 8vw, 2.8rem);
+  }
+
+  .wish-popup-textarea {
+    min-height: 8.5rem;
+    margin-top: 1rem;
+  }
+
+  .wish-skip-button {
+    left: 0.85rem;
+    top: 0.85rem;
+    padding: 0.72rem 1rem;
+    font-size: 0.92rem;
+  }
+
+  .wish-send-button {
+    min-width: 10rem;
+  }
+
+  .wish-celebration {
+    padding: 0.75rem;
   }
 
   .video-dialog video,
@@ -1530,6 +1817,13 @@ body {
   font-family: "Poppins", sans-serif;
   color: var(--ink);
   overflow-x: hidden;
+}
+
+body.wish-popup-open {
+  overflow: hidden;
+}
+
+body {
   background:
     radial-gradient(circle at 1.35rem 1.6rem, rgba(112, 70, 49, 0.13) 0 0.22rem, transparent 0.24rem),
     radial-gradient(circle at 0.98rem 1.1rem, rgba(112, 70, 49, 0.11) 0 0.1rem, transparent 0.12rem),
