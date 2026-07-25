@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+﻿document.addEventListener("DOMContentLoaded", () => {
   const loaderScreen = document.querySelector(".loader-screen");
   const experience = document.getElementById("experience");
   const loadingPercentage = document.getElementById("loadingPercentage");
@@ -21,6 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const countdownSeconds = document.getElementById("countdownSeconds");
   const countdownNote = document.getElementById("countdownNote");
   const openLetterButton = document.getElementById("openLetter");
+  const countdownPetals = document.getElementById("countdownPetals");
+  const countdownAtmosphere = document.getElementById("countdownAtmosphere");
+  const countdownFlash = document.getElementById("countdownFlash");
+  const countdownCelebration = document.getElementById("countdownCelebration");
   const letterPaper = document.getElementById("letterPaper");
   const typedLetter = document.getElementById("typedLetter");
   const musicPlayer = document.querySelector(".music-player");
@@ -68,22 +72,22 @@ document.addEventListener("DOMContentLoaded", () => {
   birthdaySong.volume = 0.54;
   const musicStorageKey = "roshaniBirthdayMusicState";
   const loveLetterText = [
-    "Happy Birthday to my favorite person, my best friend, my biggest supporter, and the best partner I could ever ask for. 💖",
+    "Happy Birthday to my favorite person, my best friend, my biggest supporter, and the best partner I could ever ask for. ðŸ’–",
     "",
-    "Thank you for always being by my side, supporting me, making me laugh, and believing in me through everything. 🌷 Life feels so much brighter, happier, and more beautiful with you in it. ✨ Every moment we spend together becomes a memory I'll cherish forever. 💕",
+    "Thank you for always being by my side, supporting me, making me laugh, and believing in me through everything. ðŸŒ· Life feels so much brighter, happier, and more beautiful with you in it. âœ¨ Every moment we spend together becomes a memory I'll cherish forever. ðŸ’•",
     "",
-    "I hope this year brings you endless happiness, good health, success, and everything you've been wishing for. 🌸 You deserve all the love, joy, and blessings this world has to offer. 🫶",
+    "I hope this year brings you endless happiness, good health, success, and everything you've been wishing for. ðŸŒ¸ You deserve all the love, joy, and blessings this world has to offer. ðŸ«¶",
     "",
-    "May your smile never fade, your dreams come true, and may we continue creating beautiful and unforgettable memories together. 💐",
+    "May your smile never fade, your dreams come true, and may we continue creating beautiful and unforgettable memories together. ðŸ’",
     "",
-    "You truly mean the world to me, and I'm so grateful to have you in my life. 💞",
+    "You truly mean the world to me, and I'm so grateful to have you in my life. ðŸ’ž",
     "",
-    "Happy Birthday once again! Wishing you the most amazing day and an even more amazing year ahead. 🎂🎉",
+    "Happy Birthday once again! Wishing you the most amazing day and an even more amazing year ahead. ðŸŽ‚ðŸŽ‰",
     "",
-    "I love you more than words can ever express, and I promise to always stand by your side. 🥰 Here's to celebrating many more birthdays together. 💝",
+    "I love you more than words can ever express, and I promise to always stand by your side. ðŸ¥° Here's to celebrating many more birthdays together. ðŸ’",
     "",
-    "Forever Yours, 💌",
-    "With All My Love 💗"
+    "Forever Yours, ðŸ’Œ",
+    "With All My Love ðŸ’—"
   ].join("\n");
   const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -487,7 +491,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const countdownTarget = getNextBirthdayTarget();
-  const birthdayAge = countdownTarget.getFullYear() - birthYear;
+  const birthdayAge = 20;
   const birthdayOrdinal = formatOrdinal(birthdayAge);
 
   if (loaderLabel) {
@@ -776,7 +780,7 @@ document.addEventListener("DOMContentLoaded", () => {
       screenResolution: getScreenResolution(),
       currentPageUrl: window.location.href,
       recipientEmail: wishConfig.emailjs?.recipientEmail || "rajsagarsaroj17@gmail.com",
-      emailSubject: "💖 New Birthday Wish Received",
+      emailSubject: "ðŸ’– New Birthday Wish Received",
       userAgent: navigator.userAgent || "",
       language: navigator.language || "",
       createdAtIso: new Date().toISOString(),
@@ -901,11 +905,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     clearWishCelebration();
-    wishCelebration.textContent = "✨ Your wish has been safely sent to the universe... and secretly to someone who loves you. ❤️";
+    wishCelebration.textContent = "âœ¨ Your wish has been safely sent to the universe... and secretly to someone who loves you. â¤ï¸";
     wishCelebration.classList.add("is-visible");
     const celebrationMessage = typeof arguments[0] === "string" && arguments[0].trim().length > 0
       ? arguments[0]
-      : "✨ Your wish has been safely sent to the universe... and secretly to someone who loves you. ❤️";
+      : "âœ¨ Your wish has been safely sent to the universe... and secretly to someone who loves you. â¤ï¸";
     wishCelebration.textContent = celebrationMessage;
     wishCelebration.setAttribute("aria-hidden", "false");
 
@@ -1060,7 +1064,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (wishSkipAttempts >= 10 && wishSkipAttempts < 25) {
-      setWishFeedback("🥺 Aww... Don't skip! Just write one little wish for me. ❤️");
+      setWishFeedback("ðŸ¥º Aww... Don't skip! Just write one little wish for me. â¤ï¸");
     }
 
     if (wishSkipAttempts >= wishSkipUnlockThreshold) {
@@ -1190,6 +1194,173 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (hasCountdownFeature) {
+    const countdownDurationSeconds = 5;
+    let countdownSecondsRemaining = countdownDurationSeconds;
+    let countdownTimerId = null;
+    let countdownAudioContext = null;
+    let countdownAtmosphereReady = false;
+    let countdownPetalLayerReady = false;
+    let countdownTickPrimed = false;
+
+    if (countdownHeading) {
+      countdownHeading.textContent = "Five-second birthday countdown";
+    }
+
+    if (countdownNote) {
+      countdownNote.textContent = "The timer begins at 5 and leads straight into Roshani's 20th birthday celebration.";
+    }
+
+    function ensureCountdownAudioContext() {
+      const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+
+      if (!AudioContextCtor) {
+        return null;
+      }
+
+      if (!countdownAudioContext) {
+        countdownAudioContext = new AudioContextCtor();
+      }
+
+      return countdownAudioContext;
+    }
+
+    function primeCountdownAudio() {
+      const context = ensureCountdownAudioContext();
+
+      if (!context || context.state !== "suspended") {
+        return;
+      }
+
+      context.resume().catch(() => {});
+    }
+
+    function playCountdownTick() {
+      if (prefersReducedMotion) {
+        return;
+      }
+
+      const context = ensureCountdownAudioContext();
+
+      if (!context) {
+        return;
+      }
+
+      if (context.state === "suspended") {
+        context.resume().catch(() => {});
+      }
+
+      try {
+        const now = context.currentTime;
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+
+        oscillator.type = "triangle";
+        oscillator.frequency.setValueAtTime(1080, now);
+        oscillator.frequency.exponentialRampToValueAtTime(840, now + 0.05);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.05, now + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.11);
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        oscillator.start(now);
+        oscillator.stop(now + 0.12);
+      } catch (error) {
+        // Sound is a bonus layer; the countdown still works if audio is blocked.
+      }
+    }
+
+    function buildCountdownAtmosphere() {
+      if (countdownAtmosphere && !countdownAtmosphereReady) {
+        countdownAtmosphereReady = true;
+        countdownAtmosphere.innerHTML = `
+          <span class="countdown-heart countdown-heart-one">&hearts;</span>
+          <span class="countdown-heart countdown-heart-two">&hearts;</span>
+          <span class="countdown-heart countdown-heart-three">&hearts;</span>
+          <span class="countdown-heart countdown-heart-four">&hearts;</span>
+          <span class="countdown-spark countdown-spark-one">&#10022;</span>
+          <span class="countdown-spark countdown-spark-two">&#10022;</span>
+          <span class="countdown-spark countdown-spark-three">&#10022;</span>
+          <span class="countdown-spark countdown-spark-four">&#10022;</span>
+          <span class="countdown-balloon countdown-balloon-one"></span>
+          <span class="countdown-balloon countdown-balloon-two"></span>
+          <span class="countdown-balloon countdown-balloon-three"></span>
+        `;
+      }
+
+      if (countdownPetals && !countdownPetalLayerReady) {
+        countdownPetalLayerReady = true;
+        const petalCount = 18;
+        const petals = [];
+
+        for (let index = 0; index < petalCount; index += 1) {
+          const size = 0.8 + Math.random() * 0.9;
+          const left = Math.random() * 100;
+          const top = -10 - Math.random() * 20;
+          const duration = 11 + Math.random() * 10;
+          const delay = -Math.random() * 8;
+          const drift = -45 + Math.random() * 90;
+          const hue = index % 3 === 0 ? "#f7d7e3" : index % 3 === 1 ? "#d48ca6" : "#f46c8a";
+          petals.push(`<span class="countdown-petal" style="left:${left}%; top:${top}%; width:${size}rem; height:${size * 1.6}rem; animation-duration:${duration}s; animation-delay:${delay}s; --drift:${drift}px; background: linear-gradient(145deg, rgba(255,255,255,0.95), ${hue});"></span>`);
+        }
+
+        countdownPetals.innerHTML = petals.join("");
+      }
+    }
+
+    function pulseCountdownUnits() {
+      document.querySelectorAll(".countdown-unit").forEach((unit) => {
+        unit.classList.remove("is-flipping");
+        void unit.offsetWidth;
+        unit.classList.add("is-flipping");
+        window.setTimeout(() => unit.classList.remove("is-flipping"), 620);
+      });
+    }
+
+    function createCountdownConfettiBurst(amount = 120) {
+      if (!confettiLayer) {
+        return;
+      }
+
+      const confettiColors = ["#ffffff", "#fff3f7", "#f7d7e3", "#d48ca6", "#f5c874"];
+
+      for (let index = 0; index < amount; index += 1) {
+        const confettiPiece = document.createElement("span");
+        const palette = confettiColors[index % confettiColors.length];
+        const size = 4 + Math.random() * 6;
+
+        confettiPiece.className = "confetti-piece countdown-confetti-piece";
+        confettiPiece.style.left = `${Math.random() * 100}%`;
+        confettiPiece.style.width = `${size}px`;
+        confettiPiece.style.height = `${size * (1.6 + Math.random() * 1.8)}px`;
+        confettiPiece.style.background = palette;
+        confettiPiece.style.borderRadius = `${Math.random() > 0.5 ? 999 : 2}px`;
+        confettiPiece.style.opacity = `${0.75 + Math.random() * 0.25}`;
+        confettiPiece.style.boxShadow = "0 0 14px rgba(255, 255, 255, 0.55)";
+        confettiPiece.style.setProperty("--drift", `${-100 + Math.random() * 200}px`);
+        confettiPiece.style.animationDelay = `${Math.random() * 0.35}s`;
+        confettiPiece.style.transform = `rotate(${Math.random() * 180}deg)`;
+        confettiLayer.appendChild(confettiPiece);
+
+        window.setTimeout(() => {
+          confettiPiece.remove();
+        }, 4200);
+      }
+    }
+
+    function flashCountdownPage() {
+      if (!countdownFlash) {
+        return;
+      }
+
+      countdownFlash.classList.remove("is-active");
+      void countdownFlash.offsetWidth;
+      countdownFlash.classList.add("is-active");
+
+      window.setTimeout(() => {
+        countdownFlash.classList.remove("is-active");
+      }, 760);
+    }
+
     function launchCountdownCelebration() {
       if (countdownCelebrationShown || !countdownSection) {
         return;
@@ -1197,55 +1368,75 @@ document.addEventListener("DOMContentLoaded", () => {
 
       countdownCelebrationShown = true;
       countdownSection.classList.add("is-complete");
+      flashCountdownPage();
 
-      const celebration = document.createElement("div");
-      celebration.className = "countdown-celebration";
-      celebration.setAttribute("aria-hidden", "true");
-      celebration.innerHTML = `
-        <span class="celebration-teddy"></span>
-        <span class="celebration-heart celebration-heart-one">❤</span>
-        <span class="celebration-heart celebration-heart-two">❤</span>
-        <span class="celebration-heart celebration-heart-three">❤</span>
-        <span class="celebration-spark celebration-spark-one">✦</span>
-        <span class="celebration-spark celebration-spark-two">✦</span>
-        <span class="celebration-spark celebration-spark-three">✦</span>
-        <p class="countdown-celebration-text">The birthday moment is here 🎉</p>
-      `;
-      countdownSection.appendChild(celebration);
+      if (countdownCelebration) {
+        countdownCelebration.innerHTML = `
+          <div class="countdown-celebration-card">
+            <span class="countdown-celebration-kicker">Happy 20th Birthday</span>
+            <h3 class="countdown-celebration-title">Roshani</h3>
+            <p class="countdown-celebration-copy">The 20th birthday moment is here. Enjoy the sparkle, fireworks, and confetti.</p>
+          </div>
+        `;
+      }
 
       if (countdownNote) {
-        countdownNote.textContent = "The countdown is complete. Time to celebrate! 🎉";
+        countdownNote.textContent = "The birthday celebration is here. Enjoy the special effects and animations!";
       }
+
+      createCountdownConfettiBurst(150);
+      createFireworkBurst();
+      createFinaleBloom(28);
+      window.setTimeout(() => {
+        createCountdownConfettiBurst(80);
+        createFireworkBurst();
+        createFinaleBloom(18);
+      }, 420);
+      window.setTimeout(() => {
+        createCountdownConfettiBurst(50);
+        createFireworkBurst();
+        createFinaleBloom(14);
+      }, 980);
     }
 
     function updateCountdown() {
-      const remainingMilliseconds = countdownTarget.getTime() - Date.now();
-
-      if (Number.isNaN(remainingMilliseconds) || remainingMilliseconds <= 0) {
+      if (countdownSecondsRemaining <= 0) {
         countdownDays.textContent = "00";
         countdownHours.textContent = "00";
         countdownMinutes.textContent = "00";
         countdownSeconds.textContent = "00";
+
+        if (countdownTimerId) {
+          window.clearInterval(countdownTimerId);
+          countdownTimerId = null;
+        }
+
         launchCountdownCelebration();
         return;
       }
 
-      const totalSeconds = Math.floor(remainingMilliseconds / 1000);
-      const days = Math.floor(totalSeconds / 86400);
-      const hours = Math.floor((totalSeconds % 86400) / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
+      countdownDays.textContent = "00";
+      countdownHours.textContent = "00";
+      countdownMinutes.textContent = "00";
+      countdownSeconds.textContent = formatCountdownValue(countdownSecondsRemaining);
 
-      countdownDays.textContent = formatCountdownValue(days);
-      countdownHours.textContent = formatCountdownValue(hours);
-      countdownMinutes.textContent = formatCountdownValue(minutes);
-      countdownSeconds.textContent = formatCountdownValue(seconds);
+      if (countdownTickPrimed) {
+        pulseCountdownUnits();
+        playCountdownTick();
+      } else {
+        countdownTickPrimed = true;
+      }
+
+      countdownSecondsRemaining -= 1;
     }
 
+    buildCountdownAtmosphere();
     updateCountdown();
-    window.setInterval(updateCountdown, 1000);
-  }
+    countdownTimerId = window.setInterval(updateCountdown, 1000);
 
+    window.addEventListener("pointerdown", primeCountdownAudio, { once: true, passive: true });
+    window.addEventListener("keydown", primeCountdownAudio, { once: true });
+  }
   let openLoveLetter = () => {};
   let toggleMusicPlayback = async () => {};
   let openVideoModal = () => {};
@@ -1907,3 +2098,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+

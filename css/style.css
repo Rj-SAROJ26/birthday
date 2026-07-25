@@ -3569,3 +3569,544 @@ body.is-gated {
     min-height: 18rem;
   }
 }
+
+/* Countdown-only enhancements */
+.countdown-section {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.countdown-section .section-heading,
+.countdown-section .countdown-card,
+.countdown-section .page-actions {
+  position: relative;
+  z-index: 1;
+}
+
+.countdown-section .section-description {
+  animation: countdownSubtitleFloat 4.8s ease-in-out infinite;
+  will-change: transform, text-shadow;
+}
+
+.countdown-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: opacity 0.65s ease, transform 0.65s ease, box-shadow 0.65s ease, filter 0.65s ease;
+  will-change: transform, opacity, box-shadow, filter;
+}
+
+.countdown-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.32), transparent 28%),
+    radial-gradient(circle at 80% 18%, rgba(245, 200, 116, 0.18), transparent 24%),
+    radial-gradient(circle at 50% 84%, rgba(212, 140, 166, 0.12), transparent 36%);
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.countdown-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.countdown-ring {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.countdown-ring svg {
+  width: min(86vw, 24rem);
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 16px 32px rgba(168, 90, 119, 0.18));
+}
+
+.countdown-ring-track,
+.countdown-ring-progress {
+  fill: none;
+  stroke-width: 11;
+}
+
+.countdown-ring-track {
+  stroke: rgba(255, 255, 255, 0.42);
+}
+
+.countdown-ring-progress {
+  stroke: url(#countdownRingGradient);
+  stroke-linecap: round;
+  stroke-dasharray: 578.05;
+  stroke-dashoffset: 578.05;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+  opacity: 0.98;
+}
+
+.countdown-grid {
+  position: relative;
+  z-index: 2;
+}
+
+.countdown-unit {
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: transform 0.45s ease, box-shadow 0.45s ease, background 0.45s ease;
+  will-change: transform;
+}
+
+.countdown-unit::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0));
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.countdown-unit span {
+  transform-origin: 50% 55%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.countdown-unit.is-flipping {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 34px rgba(148, 84, 108, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+
+.countdown-unit.is-flipping::after {
+  opacity: 1;
+}
+
+.countdown-unit.is-flipping span {
+  animation: countdownFlip 0.62s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.countdown-note {
+  position: relative;
+  z-index: 2;
+  transition: opacity 0.5s ease, transform 0.5s ease, color 0.5s ease, text-shadow 0.5s ease;
+}
+
+.countdown-atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.countdown-atmosphere span {
+  position: absolute;
+  will-change: transform, opacity;
+}
+
+.countdown-heart {
+  color: rgba(212, 92, 126, 0.28);
+  font-size: 1.05rem;
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.45);
+  animation: countdownHeartFloat 8.6s ease-in-out infinite;
+}
+
+.countdown-heart-one {
+  left: 12%;
+  top: 16%;
+  animation-duration: 9.2s;
+}
+
+.countdown-heart-two {
+  left: 80%;
+  top: 18%;
+  animation-duration: 8.4s;
+  animation-delay: 0.8s;
+}
+
+.countdown-heart-three {
+  left: 20%;
+  bottom: 12%;
+  animation-duration: 10.1s;
+  animation-delay: 1.4s;
+}
+
+.countdown-heart-four {
+  right: 14%;
+  bottom: 16%;
+  animation-duration: 9.8s;
+  animation-delay: 2s;
+}
+
+.countdown-spark {
+  color: rgba(245, 200, 116, 0.42);
+  font-size: 0.88rem;
+  text-shadow: 0 0 18px rgba(245, 200, 116, 0.36);
+  animation: countdownSparkle 3.8s ease-in-out infinite;
+}
+
+.countdown-spark-one {
+  left: 8%;
+  top: 34%;
+}
+
+.countdown-spark-two {
+  left: 26%;
+  top: 14%;
+  animation-delay: 0.8s;
+}
+
+.countdown-spark-three {
+  right: 24%;
+  bottom: 18%;
+  animation-delay: 1.2s;
+}
+
+.countdown-spark-four {
+  right: 8%;
+  top: 36%;
+  animation-delay: 1.8s;
+}
+
+.countdown-balloon {
+  width: 4rem;
+  height: 5.1rem;
+  border-radius: 50% 50% 46% 46%;
+  box-shadow: 0 18px 28px rgba(168, 90, 119, 0.14);
+  animation: countdownBalloonSway 6.5s ease-in-out infinite;
+}
+
+.countdown-balloon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -2.2rem;
+  width: 1px;
+  height: 2.5rem;
+  background: rgba(60, 41, 64, 0.24);
+}
+
+.countdown-balloon-one {
+  left: 10%;
+  bottom: 10%;
+  background: linear-gradient(145deg, #fff4f8, #f7d7e3);
+}
+
+.countdown-balloon-two {
+  right: 14%;
+  top: 10%;
+  background: linear-gradient(145deg, #f7d7e3, #d48ca6);
+  animation-delay: 1.2s;
+}
+
+.countdown-balloon-three {
+  left: 50%;
+  top: 4%;
+  transform: translateX(-50%);
+  background: linear-gradient(145deg, #fff8fb, #f5c874);
+  animation-delay: 2.2s;
+}
+
+.countdown-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.82) 48%, rgba(255, 255, 255, 0) 76%);
+  mix-blend-mode: screen;
+}
+
+.countdown-flash.is-active {
+  animation: countdownFlashFade 0.76s ease forwards;
+}
+
+.countdown-celebration {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.95);
+  transition: opacity 0.55s ease, transform 0.55s ease, visibility 0.55s ease;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.countdown-section.is-complete .countdown-celebration {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+.countdown-celebration-card {
+  width: min(92vw, 28rem);
+  padding: 1.4rem 1.25rem;
+  text-align: center;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.44);
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.34), transparent 42%),
+    rgba(255, 255, 255, 0.18);
+  box-shadow: 0 30px 80px rgba(12, 5, 10, 0.36);
+  backdrop-filter: blur(18px);
+}
+
+.countdown-celebration-kicker {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--rose-deep);
+}
+
+.countdown-celebration-title {
+  margin-top: 0.45rem;
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(3rem, 7vw, 4.8rem);
+  line-height: 0.95;
+  color: var(--ink);
+  text-shadow: 0 0 16px rgba(255, 255, 255, 0.88), 0 0 34px rgba(212, 140, 166, 0.42);
+  animation: countdownTitleGlow 1.2s ease-in-out infinite alternate;
+}
+
+.countdown-celebration-copy {
+  margin-top: 0.85rem;
+  line-height: 1.8;
+  color: rgba(60, 41, 64, 0.84);
+}
+
+.countdown-section.is-complete .countdown-card {
+  opacity: 0;
+  transform: scale(0.94) translateY(14px);
+  filter: blur(1px);
+}
+
+.countdown-section.is-complete .section-heading {
+  opacity: 0.18;
+  transform: translateY(-8px);
+  filter: blur(1px);
+}
+
+.countdown-section.is-complete .countdown-ring {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.countdown-section.is-complete .countdown-note {
+  color: var(--rose-deep);
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.72);
+}
+
+.countdown-continue {
+  position: relative;
+  overflow: hidden;
+  animation: countdownContinuePulse 2.2s ease-in-out infinite;
+}
+
+.countdown-continue::before {
+  content: "";
+  position: absolute;
+  inset: -45% -25%;
+  background: linear-gradient(120deg, transparent 34%, rgba(255, 255, 255, 0.78) 50%, transparent 66%);
+  transform: translateX(-120%) rotate(8deg);
+  animation: countdownContinueShine 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.countdown-confetti-piece {
+  mix-blend-mode: screen;
+  filter: saturate(1.18) drop-shadow(0 0 6px rgba(255, 255, 255, 0.45));
+}
+
+@keyframes countdownFlip {
+  0% {
+    transform: rotateX(0deg) translateY(0);
+    opacity: 1;
+  }
+  45% {
+    transform: rotateX(-85deg) translateY(-2px);
+    opacity: 0.3;
+  }
+  55% {
+    transform: rotateX(85deg) translateY(2px);
+    opacity: 0.4;
+  }
+  100% {
+    transform: rotateX(0deg) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes countdownSubtitleFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+    text-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+  50% {
+    transform: translateY(-3px);
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.36);
+  }
+}
+
+@keyframes countdownHeartFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(0.95);
+    opacity: 0.18;
+  }
+  50% {
+    transform: translateY(-12px) scale(1.08);
+    opacity: 0.55;
+  }
+}
+
+@keyframes countdownSparkle {
+  0%,
+  100% {
+    transform: scale(0.72) rotate(0deg);
+    opacity: 0.15;
+  }
+  50% {
+    transform: scale(1.08) rotate(24deg);
+    opacity: 0.72;
+  }
+}
+
+@keyframes countdownBalloonSway {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(2deg);
+  }
+}
+
+@keyframes countdownFlashFade {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes countdownTitleGlow {
+  0% {
+    text-shadow: 0 0 14px rgba(255, 255, 255, 0.8), 0 0 28px rgba(212, 140, 166, 0.34);
+  }
+  100% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.95), 0 0 44px rgba(245, 200, 116, 0.45);
+  }
+}
+
+@keyframes countdownContinuePulse {
+  0%,
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 16px 30px rgba(168, 90, 119, 0.3);
+  }
+  50% {
+    transform: translateY(-2px);
+    box-shadow: 0 22px 38px rgba(168, 90, 119, 0.42);
+  }
+}
+
+@keyframes countdownContinueShine {
+  0%,
+  45% {
+    transform: translateX(-120%) rotate(8deg);
+  }
+  70%,
+  100% {
+    transform: translateX(120%) rotate(8deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .countdown-section .section-description {
+    animation-duration: 5.4s;
+  }
+
+  .countdown-ring svg {
+    width: min(78vw, 20rem);
+  }
+
+  .countdown-celebration-card {
+    width: min(90vw, 26rem);
+  }
+
+  .countdown-continue {
+    width: 100%;
+  }
+}
+
+/* Countdown petals */
+.countdown-petal-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.countdown-petal {
+  position: absolute;
+  border-radius: 70% 30% 70% 30%;
+  opacity: 0.35;
+  filter: blur(0.15px) drop-shadow(0 10px 16px rgba(168, 90, 119, 0.16));
+  transform-origin: center;
+  animation: countdownPetalFloat linear infinite;
+  will-change: transform, opacity;
+}
+
+.countdown-petal::before {
+  content: "";
+  position: absolute;
+  inset: 18% 34% 18% 34%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0.85;
+}
+
+.countdown-section.is-complete .countdown-petal-layer {
+  opacity: 0.22;
+  transition: opacity 0.65s ease;
+}
+
+@keyframes countdownPetalFloat {
+  0% {
+    transform: translate3d(0, -12vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.42;
+  }
+  100% {
+    transform: translate3d(var(--drift), 118vh, 0) rotate(240deg);
+    opacity: 0;
+  }
+}
